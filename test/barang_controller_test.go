@@ -60,7 +60,7 @@ func TestCreateSucces(t *testing.T) {
 	db := NewDBTest()
 	truncateDB(db)
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "Surya", "hargaprod": 1000,"keterangan": "test"}`)
+	requestBody := strings.NewReader(`{"nameprod": "Surya", "hargaprod": 1000,"keterangan": "test", "stok":20}`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/barang", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -77,13 +77,14 @@ func TestCreateSucces(t *testing.T) {
 	assert.Equal(t, "Surya", responseBody["data"].(map[string]interface{})["nameprod"])
 	assert.Equal(t, 1000, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
 	assert.Equal(t, "test", responseBody["data"].(map[string]interface{})["keterangan"])
+	assert.Equal(t, 20, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
 
 func TestCreateFailed(t *testing.T) {
 	db := NewDBTest()
 	truncateDB(db)
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": ""}`)
+	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": "","stok":0}`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/barang", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -112,7 +113,7 @@ func TestUpdateSucces(t *testing.T) {
 	})
 	tx.Commit()
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "hehe", "hargaprod": 2000,"keterangan": "rokok"}`)
+	requestBody := strings.NewReader(`{"nameprod": "hehe", "hargaprod": 2000,"keterangan": "rokok","stok";10}`)
 	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -132,6 +133,7 @@ func TestUpdateSucces(t *testing.T) {
 	assert.Equal(t, "hehe", responseBody["data"].(map[string]interface{})["nameprod"])
 	assert.Equal(t, 2000, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
 	assert.Equal(t, "rokok", responseBody["data"].(map[string]interface{})["keterangan"])
+	assert.Equal(t, 10, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
 
 func TestUpdateFailed(t *testing.T) {
@@ -147,7 +149,7 @@ func TestUpdateFailed(t *testing.T) {
 	})
 	tx.Commit()
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": ""}`)
+	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": "","stok":10}`)
 	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -174,6 +176,7 @@ func TestGetBarangSucces(t *testing.T) {
 		NameProd:   "lala",
 		Hargaprod:  10,
 		Keterangan: "gg",
+		Stok:       10,
 	})
 	tx.Commit()
 	router := setupRouter(db)
@@ -195,6 +198,7 @@ func TestGetBarangSucces(t *testing.T) {
 	assert.Equal(t, barang.NameProd, responseBody["data"].(map[string]interface{})["nameprod"])
 	assert.Equal(t, barang.Hargaprod, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
 	assert.Equal(t, barang.Keterangan, responseBody["data"].(map[string]interface{})["keterangan"])
+	assert.Equal(t, barang.Stok, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
 
 func TestGetBarangFailed(t *testing.T) {
@@ -275,11 +279,13 @@ func TestListBarangSucces(t *testing.T) {
 		NameProd:   "lala",
 		Hargaprod:  10,
 		Keterangan: "gg",
+		Stok:       20,
 	})
 	barang1 := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala1",
 		Hargaprod:  101,
 		Keterangan: "gg1",
+		Stok:       30,
 	})
 	tx.Commit()
 	router := setupRouter(db)
