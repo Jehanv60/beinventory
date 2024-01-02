@@ -30,7 +30,11 @@ func (controller *PenggunaControllerImpl) Create(w http.ResponseWriter, r *http.
 		Status: "Ok",
 		Data:   penggunaResponse,
 	}
-	helper.WriteToResponse(w, webResponse)
+	helper.WriteToResponse(w, map[string]interface{}{
+		"Code":   webResponse.Code,
+		"Status": webResponse.Status,
+		"Mesage": "Data Berhasil Ditambahkan",
+	})
 }
 
 // FindAll implements PenggunaController.
@@ -57,6 +61,18 @@ func (controller *PenggunaControllerImpl) FindById(w http.ResponseWriter, r *htt
 	helper.WriteToResponse(w, webResponse)
 }
 
+// FindById implements PenggunaController.
+func (controller *PenggunaControllerImpl) FindByPengguna(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	id := params.ByName("NamaPengguna")
+	penggunaResponse := controller.PenggunaService.FindByPengguna(r.Context(), id)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   penggunaResponse,
+	}
+	helper.WriteToResponse(w, webResponse)
+}
+
 // Update implements PenggunaController.
 func (controller *PenggunaControllerImpl) Update(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	penggunaUpdate := web.PenggunaUpdate{}
@@ -66,10 +82,15 @@ func (controller *PenggunaControllerImpl) Update(w http.ResponseWriter, r *http.
 	penggunaUpdate.Id = id
 
 	penggunaResponse := controller.PenggunaService.Update(r.Context(), penggunaUpdate)
+	helper.PanicError(err)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "Ok",
 		Data:   penggunaResponse,
 	}
-	helper.WriteToResponse(w, webResponse)
+	helper.WriteToResponse(w, map[string]interface{}{
+		"Code":   webResponse.Code,
+		"Status": webResponse.Status,
+		"Mesage": "Data Berhasil Diupdate",
+	})
 }

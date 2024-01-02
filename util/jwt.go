@@ -6,7 +6,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var Secretkey string
+var Secretkey string = "your-256-bit-secret"
 
 func GenerateToken(claims *jwt.MapClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

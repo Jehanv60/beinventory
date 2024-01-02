@@ -69,6 +69,19 @@ func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int
 
 }
 
+// FindById implements PenggunaService.
+func (service *PenggunaServiceImpl) FindByPengguna(ctx context.Context, NamaPengguna string) web.PenggunaResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicError(err)
+	defer helper.CommitOrRollback(tx)
+	penggunas, err := service.PenggunaRepository.FindByPengguna(ctx, tx, NamaPengguna)
+	if err != nil {
+		panic(exception.NewNotFound(err.Error()))
+	}
+	return helper.ToPenggunaResponse(penggunas)
+
+}
+
 // Update implements PenggunaService.
 func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.PenggunaUpdate) web.PenggunaResponse {
 	err := service.Validate.Struct(update)

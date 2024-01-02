@@ -33,5 +33,4 @@ func main() {
 	fmt.Println("berhasil Konek")
 	err := server.ListenAndServe()
 	helper.PanicError(err)
-
 }

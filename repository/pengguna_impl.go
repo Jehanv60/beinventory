@@ -42,8 +42,24 @@ func (repository *PenggunaRepoImpl) FindById(ctx context.Context, tx *sql.Tx, pe
 		rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
 		return pengguna, nil
 	} else {
-		return pengguna, errors.New("data barang tidak ditemukan")
+		return pengguna, errors.New("data User tidak ditemukan")
 	}
+}
+
+func (repository *PenggunaRepoImpl) FindByPengguna(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error) {
+	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1"
+	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna)
+	helper.PanicError(err)
+	pengguna := domain.Pengguna{}
+	defer rows.Close()
+	if rows.Next() {
+		rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
+		return pengguna, nil
+	}
+	return pengguna, nil
+	// else {
+	// 	return pengguna, errors.New("pengguna tidak ditemukan")
+	// }
 }
 
 func (repository *PenggunaRepoImpl) FindAll(ctx context.Context, tx *sql.Tx) []domain.Pengguna {
