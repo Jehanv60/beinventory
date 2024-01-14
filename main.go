@@ -25,7 +25,6 @@ func main() {
 	penggunaService := service.NewPenggunaService(penggunaRepository, DB, validate)
 	penggunaController := controller.NewPenggunaController(penggunaService)
 	router := app.NewRouter(barangController, penggunaController)
-
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: middleware.NewAuthMiddleware(router),

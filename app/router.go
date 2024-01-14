@@ -15,12 +15,12 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	router.DELETE("/api/barang/:barangId", barangController.Delete)
 	router.POST("/api/barang", barangController.Create)
 	//pengguna
-	router.POST("/api/login", penggunaController.LoginAuth)
+	router.GET("/api/namapengguna/:NamaPengguna", penggunaController.FindByPengguna)
 	router.GET("/api/pengguna", penggunaController.FindAll)
 	router.GET("/api/pengguna/:penggunaId", penggunaController.FindById)
-	router.GET("/api/namapengguna/:NamaPengguna", penggunaController.FindByPengguna)
 	router.PUT("/api/pengguna/:penggunaId", penggunaController.Update)
 	router.POST("/api/pengguna", penggunaController.Create)
+	router.POST("/api/login", penggunaController.LoginAuth)
 	router.PanicHandler = exception.ErrorHandler
 	return router
 }

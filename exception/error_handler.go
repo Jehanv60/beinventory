@@ -1,6 +1,7 @@
 package exception
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/Jehanv60/helper"
@@ -15,6 +16,7 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
 	if validationError(w, r, err) {
 		return
 	}
+
 	internalServerError(w, r, err)
 }
 func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
@@ -65,6 +67,7 @@ func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}
 		Status: "Internal Server error",
 		Data:   err,
 	}
-
+	log.Println(err)
 	helper.WriteToResponse(w, webResponse)
+
 }

@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
+	"github.com/Jehanv60/util"
 )
 
 type AuthMiddleware struct {
@@ -19,47 +19,37 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ApiKey := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-	if len(ApiKey) != 2 {
+	ApiKey := r.Header.Get("Authorization")
+	tokenn, err := r.Cookie("token")
+	if ApiKey == "" || err == http.ErrNoCookie {
+		if r.Method != "POST" {
+			webResponse := web.WebResponse{
+				Code:   http.StatusUnauthorized,
+				Status: "Mohon Login Dulu",
+			}
+			helper.WriteToResponse(w, webResponse)
+		} else if r.Method == "POST" && r.URL.Path == "/api/login" {
+			middleware.Handler.ServeHTTP(w, r)
+		} else if r.Method == "POST" {
+			middleware.Handler.ServeHTTP(w, r)
+		}
+	} else if ApiKey == tokenn.Value {
+		tokenstring, err := util.Decodetoken(tokenn.Value)
+		helper.PanicError(err)
+		webResponse := web.WebResponse{
+			Code:   200,
+			Status: "Login Sukses dengan username",
+			Data:   tokenstring["pengguna"],
+		}
+		helper.WriteToResponse(w, webResponse)
 		middleware.Handler.ServeHTTP(w, r)
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-
 		webResponse := web.WebResponse{
 			Code:   http.StatusUnauthorized,
 			Status: "Unauthorized",
 		}
 		helper.WriteToResponse(w, webResponse)
 	}
-
 }
-
-// func (middleware *AuthMiddleware) Login(w http.ResponseWriter, r *http.Request) {
-// 	authHeader := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-// 	if len(authHeader) != 2 {
-// 		fmt.Println("Malformed token")
-// 		w.WriteHeader(http.StatusUnauthorized)
-// 		w.Write([]byte("Malformed Token"))
-// 	} else {
-// 		jwtToken := authHeader[1]
-// 		token, err := jwt.Parse(jwtToken, func(token *jwt.Token) (interface{}, error) {
-// 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-// 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-// 			}
-// 			return []byte(util.Secretkey), nil
-// 		})
-
-// 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-// 			ctx := context.WithValue(r.Context(), "props", claims)
-// 			// Access context values in handlers like this
-// 			// props, _ := r.Context().Value("props").(jwt.MapClaims)
-// 			middleware.Handler.ServeHTTP(w, r.WithContext(ctx))
-// 		} else {
-// 			fmt.Println(err)
-// 			w.WriteHeader(http.StatusUnauthorized)
-// 			w.Write([]byte("Unauthorized"))
-// 		}
-// 	}
-
-// }

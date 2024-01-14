@@ -1,6 +1,7 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -25,7 +26,7 @@ func VerifyToken(vertoken string) (*jwt.Token, error) {
 		return []byte(Secretkey), nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error cookie")
 	}
 	return token, nil
 }
