@@ -13,6 +13,9 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
 	if notFoundError(w, r, err) {
 		return
 	}
+	if sameFoundError(w, r, err) {
+		return
+	}
 	if validationError(w, r, err) {
 		return
 	}
@@ -57,7 +60,25 @@ func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool
 	}
 
 }
+func sameFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+	exception, ok := err.(SameFound)
+	if ok {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
 
+		webResponse := web.WebResponse{
+			Code:   http.StatusNotFound,
+			Status: "Pengguna Sudah Ada, Mohon Ganti Dengan Yang Lain",
+			Data:   exception.Error,
+		}
+
+		helper.WriteToResponse(w, webResponse)
+		return true
+	} else {
+		return false
+	}
+
+}
 func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)

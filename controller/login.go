@@ -55,7 +55,7 @@ helper.PanicError(err)
 func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	penggunaCreateRequest := web.LoginRequest{}
 	helper.ReadFromBody(r, &penggunaCreateRequest)
-	penggunaId := controller.PenggunaService.FindByPengguna(r.Context(), penggunaCreateRequest.Pengguna)
+	penggunaId := controller.PenggunaService.FindByPenggunaLogin(r.Context(), penggunaCreateRequest.Pengguna)
 	webResponse := web.LoginRequest{
 		Pengguna: penggunaCreateRequest.Pengguna,
 		Email:    penggunaCreateRequest.Email,

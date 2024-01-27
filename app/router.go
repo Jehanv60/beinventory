@@ -15,7 +15,7 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	router.DELETE("/api/barang/:barangId", barangController.Delete)
 	router.POST("/api/barang", barangController.Create)
 	//pengguna
-	router.GET("/api/namapengguna/:NamaPengguna", penggunaController.FindByPengguna)
+	router.GET("/api/namapengguna/:NamaPengguna", penggunaController.FindByPenggunaRegister)
 	router.GET("/api/pengguna", penggunaController.FindAll)
 	router.GET("/api/pengguna/:penggunaId", penggunaController.FindById)
 	router.PUT("/api/pengguna/:penggunaId", penggunaController.Update)

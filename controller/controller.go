@@ -19,6 +19,7 @@ type PenggunaController interface {
 	Update(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindAll(w http.ResponseWriter, r *http.Request, params httprouter.Params)
-	FindByPengguna(w http.ResponseWriter, r *http.Request, params httprouter.Params)
+	FindByPenggunaRegister(w http.ResponseWriter, r *http.Request, params httprouter.Params)
+	FindByPenggunaLogin(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
