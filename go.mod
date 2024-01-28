@@ -9,6 +9,8 @@ require (
 	github.com/lib/pq v1.10.9
 )
 
+require github.com/joho/godotenv v1.5.1 // indirect
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect

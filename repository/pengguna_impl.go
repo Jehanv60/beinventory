@@ -15,6 +15,7 @@ type PenggunaRepoImpl struct {
 func NewRepositoryPengguna() PenggunaRepository {
 	return &PenggunaRepoImpl{}
 }
+
 func (repository *PenggunaRepoImpl) Save(ctx context.Context, tx *sql.Tx, pengguna domain.Pengguna) domain.Pengguna {
 	SQL := "insert into pengguna(pengguna, email, password) values ($1,$2,$3) returning id"
 	// result, err := tx.ExecContext(ctx, SQL, barang.NameProd, barang.Hargaprod, barang.Keterangan)
@@ -60,6 +61,7 @@ func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, 
 	}
 	return pengguna, nil
 }
+
 func (repository *PenggunaRepoImpl) FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error) {
 	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1"
 	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna)

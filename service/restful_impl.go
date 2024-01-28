@@ -13,6 +13,7 @@ type BarangService interface {
 	FindById(ctx context.Context, barangId int) web.BarangResponse
 	FindAll(ctx context.Context) []web.BarangResponse
 }
+
 type PenggunaService interface {
 	Create(ctx context.Context, request web.PenggunaCreateRequest) web.PenggunaResponse
 	Update(ctx context.Context, update web.PenggunaUpdate) web.PenggunaResponse

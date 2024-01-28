@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/Jehanv60/helper"
@@ -11,6 +12,53 @@ import (
 	"github.com/julienschmidt/httprouter"
 	_ "github.com/lib/pq"
 )
+
+func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	penggunaCreateRequest := web.LoginRequest{}
+	helper.ReadFromBody(r, &penggunaCreateRequest)
+	penggunaId := controller.PenggunaService.FindByPenggunaLogin(r.Context(), penggunaCreateRequest.Pengguna)
+	webResponse := web.LoginRequest{
+		Pengguna: penggunaCreateRequest.Pengguna,
+		Email:    penggunaCreateRequest.Email,
+		Sandi:    penggunaCreateRequest.Sandi,
+	}
+	isvalid := util.Unhashpassword(webResponse.Sandi, penggunaId.Sandi)
+	if webResponse.Pengguna == "" || webResponse.Email == "" || webResponse.Sandi == "" {
+		helper.WriteToResponse(w, map[string]interface{}{
+			"Code":    500,
+			"Status":  "Bad Request",
+			"Message": "Data Masih Kosong Mohon Dilengkapi",
+		})
+	} else if webResponse.Pengguna != penggunaId.Pengguna || webResponse.Email != penggunaId.Email || !isvalid {
+		helper.WriteToResponse(w, map[string]interface{}{
+			"Code":    500,
+			"Status":  "Bad Request",
+			"Message": "Username Atau Email Dan Password Tidak Sesuai",
+		})
+	} else {
+		claims := jwt.MapClaims{}
+		claims["pengguna"] = penggunaCreateRequest.Pengguna
+		claims["email"] = penggunaCreateRequest.Email
+		claims["sandi"] = penggunaCreateRequest.Sandi
+		// claims["exp"] = time.Now().Add(time.Hour * 5).Unix()
+		Token, err := util.GenerateToken(&claims)
+		helper.PanicError(err)
+		helper.GoDoEnv()
+		hehe := &http.Cookie{
+			Name:     os.Getenv("Token"),
+			Value:    Token,
+			Path:     "/",
+			Expires:  time.Now().Add(time.Hour * 5),
+			HttpOnly: true,
+		}
+		http.SetCookie(w, hehe)
+		helper.WriteToResponse(w, map[string]interface{}{
+			"Message":  "Token Berhasil Dibuat",
+			"Token":    Token,
+			"Validasi": "Username Atau Email Dan Password Sesuai",
+		})
+	}
+}
 
 /*
 contoh penggunan tanpa interface
@@ -52,48 +100,3 @@ helper.PanicError(err)
 
 }
 */
-func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	penggunaCreateRequest := web.LoginRequest{}
-	helper.ReadFromBody(r, &penggunaCreateRequest)
-	penggunaId := controller.PenggunaService.FindByPenggunaLogin(r.Context(), penggunaCreateRequest.Pengguna)
-	webResponse := web.LoginRequest{
-		Pengguna: penggunaCreateRequest.Pengguna,
-		Email:    penggunaCreateRequest.Email,
-		Sandi:    penggunaCreateRequest.Sandi,
-	}
-	isvalid := util.Unhashpassword(webResponse.Sandi, penggunaId.Sandi)
-	if webResponse.Pengguna == "" || webResponse.Email == "" || webResponse.Sandi == "" {
-		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    500,
-			"Status":  "Bad Request",
-			"Message": "Data Masih Kosong Mohon Dilengkapi",
-		})
-	} else if webResponse.Pengguna != penggunaId.Pengguna || webResponse.Email != penggunaId.Email || !isvalid {
-		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    500,
-			"Status":  "Bad Request",
-			"Message": "Username Atau Email Dan Password Tidak Sesuai",
-		})
-	} else {
-		claims := jwt.MapClaims{}
-		claims["pengguna"] = penggunaCreateRequest.Pengguna
-		claims["email"] = penggunaCreateRequest.Email
-		claims["sandi"] = penggunaCreateRequest.Sandi
-		claims["exp"] = time.Now().Add(time.Hour * 5).Unix()
-		Token, err := util.GenerateToken(&claims)
-		helper.PanicError(err)
-		hehe := &http.Cookie{
-			Name:     "token",
-			Value:    Token,
-			Path:     "/",
-			Expires:  time.Now().Add(time.Hour * 5),
-			HttpOnly: true,
-		}
-		http.SetCookie(w, hehe)
-		helper.WriteToResponse(w, map[string]interface{}{
-			"Message":  "Token Berhasil Dibuat",
-			"Token":    Token,
-			"Validasi": "Username Atau Email Dan Password Sesuai",
-		})
-	}
-}

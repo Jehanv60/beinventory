@@ -15,6 +15,7 @@ type BarangRepoImpl struct {
 func NewRepositoryBarang() BarangRepository {
 	return &BarangRepoImpl{}
 }
+
 func (repository *BarangRepoImpl) Save(ctx context.Context, tx *sql.Tx, barang domain.Barang) domain.Barang {
 	SQL := "insert into barang(nameprod, hargaprod, keterangan, stok)values ($1,$2,$3,$4) returning id"
 	var id int

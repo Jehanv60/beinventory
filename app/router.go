@@ -21,6 +21,7 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	router.PUT("/api/pengguna/:penggunaId", penggunaController.Update)
 	router.POST("/api/pengguna", penggunaController.Create)
 	router.POST("/api/login", penggunaController.LoginAuth)
+	router.POST("/api/logout", controller.Logout)
 	router.PanicHandler = exception.ErrorHandler
 	return router
 }

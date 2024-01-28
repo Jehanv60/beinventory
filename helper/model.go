@@ -31,6 +31,7 @@ func ToBarangResponses(barangs []domain.Barang) []web.BarangResponse {
 	}
 	return barangResponses
 }
+
 func ToPenggunaResponses(penggunas []domain.Pengguna) []web.PenggunaResponse {
 	var penggunaResponses []web.PenggunaResponse
 	for _, penggunass := range penggunas {

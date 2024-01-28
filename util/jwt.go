@@ -3,15 +3,19 @@ package util
 import (
 	"errors"
 	"fmt"
+	"os"
 
+	"github.com/Jehanv60/helper"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var Secretkey string = "your-256-bit-secret"
+var SecretKey string
 
 func GenerateToken(claims *jwt.MapClaims) (string, error) {
+	helper.GoDoEnv()
+	SecretKey = os.Getenv("SecretKey")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	webtoken, err := token.SignedString([]byte(Secretkey))
+	webtoken, err := token.SignedString([]byte(SecretKey))
 	if err != nil {
 		return "", err
 	}
@@ -19,11 +23,13 @@ func GenerateToken(claims *jwt.MapClaims) (string, error) {
 }
 
 func VerifyToken(vertoken string) (*jwt.Token, error) {
+	helper.GoDoEnv()
+	SecretKey = os.Getenv("SecretKey")
 	token, err := jwt.Parse(vertoken, func(token *jwt.Token) (interface{}, error) {
 		if _, isvalid := token.Method.(*jwt.SigningMethodHMAC); !isvalid {
 			return nil, fmt.Errorf("unexpected signing: %v", token.Header["alg"])
 		}
-		return []byte(Secretkey), nil
+		return []byte(SecretKey), nil
 	})
 	if err != nil {
 		return nil, errors.New("error cookie")

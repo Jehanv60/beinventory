@@ -32,7 +32,6 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-
 	barangs := domain.Barang{
 		NameProd:   request.NameProd,
 		Hargaprod:  request.Hargaprod,
@@ -42,6 +41,7 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 	barangs = service.BarangRepository.Save(ctx, tx, barangs)
 	return helper.ToBarangResponse(barangs)
 }
+
 func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangUpdate) web.BarangResponse {
 	err := service.Validate.Struct(update)
 	helper.PanicError(err)
@@ -59,6 +59,7 @@ func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangU
 	barangs = service.BarangRepository.Update(ctx, tx, barangs)
 	return helper.ToBarangResponse(barangs)
 }
+
 func (service *BarangServiceImpl) Delete(ctx context.Context, barangId int) {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
@@ -68,8 +69,8 @@ func (service *BarangServiceImpl) Delete(ctx context.Context, barangId int) {
 		panic(exception.NewNotFound(err.Error()))
 	}
 	service.BarangRepository.Delete(ctx, tx, barangs)
-
 }
+
 func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int) web.BarangResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
@@ -80,6 +81,7 @@ func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int) we
 	}
 	return helper.ToBarangResponse(barangs)
 }
+
 func (service *BarangServiceImpl) FindAll(ctx context.Context) []web.BarangResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)

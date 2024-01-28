@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
@@ -19,8 +20,13 @@ func NewAuthMiddleware(handler http.Handler) *AuthMiddleware {
 }
 
 func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ApiKey := r.Header.Get("Authorization")
-	tokenn, err := r.Cookie("token")
+	helper.GoDoEnv()
+	var (
+		Header = os.Getenv("Header")
+		Token  = os.Getenv("Token")
+	)
+	ApiKey := r.Header.Get(Header)
+	tokenn, err := r.Cookie(Token)
 	if ApiKey == "" || err == http.ErrNoCookie {
 		if r.Method != "POST" {
 			webResponse := web.WebResponse{
@@ -36,12 +42,9 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	} else if ApiKey == tokenn.Value {
 		tokenstring, err := util.Decodetoken(tokenn.Value)
 		helper.PanicError(err)
-		webResponse := web.WebResponse{
-			Code:   200,
-			Status: "Login Sukses dengan username",
-			Data:   tokenstring["pengguna"],
-		}
-		helper.WriteToResponse(w, webResponse)
+		helper.WriteToResponse(w, map[string]interface{}{
+			"User": tokenstring["pengguna"],
+		})
 		middleware.Handler.ServeHTTP(w, r)
 	} else {
 		w.Header().Set("Content-Type", "application/json")
