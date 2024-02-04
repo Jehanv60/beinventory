@@ -24,15 +24,19 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 	}
 	isvalid := util.Unhashpassword(webResponse.Sandi, penggunaId.Sandi)
 	if webResponse.Pengguna == "" || webResponse.Email == "" || webResponse.Sandi == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
 		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    500,
+			"Code":    400,
 			"Status":  "Bad Request",
 			"Message": "Data Masih Kosong Mohon Dilengkapi",
 		})
 	} else if webResponse.Pengguna != penggunaId.Pengguna || webResponse.Email != penggunaId.Email || !isvalid {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
 		helper.WriteToResponse(w, map[string]interface{}{
-			"Code":    500,
-			"Status":  "Bad Request",
+			"Code":    401,
+			"Status":  "Unauthorized",
 			"Message": "Username Atau Email Dan Password Tidak Sesuai",
 		})
 	} else {

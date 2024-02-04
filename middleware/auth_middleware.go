@@ -40,12 +40,12 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 			middleware.Handler.ServeHTTP(w, r)
 		}
 	} else if ApiKey == tokenn.Value {
+		middleware.Handler.ServeHTTP(w, r)
 		tokenstring, err := util.Decodetoken(tokenn.Value)
 		helper.PanicError(err)
 		helper.WriteToResponse(w, map[string]interface{}{
 			"User": tokenstring["pengguna"],
 		})
-		middleware.Handler.ServeHTTP(w, r)
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)

@@ -61,9 +61,9 @@ func sameFoundError(w http.ResponseWriter, r *http.Request, err interface{}) boo
 	exception, ok := err.(SameFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
 		webResponse := web.WebResponse{
-			Code:   http.StatusNotFound,
+			Code:   http.StatusUnauthorized,
 			Status: "Pengguna Sudah Ada, Mohon Ganti Dengan Yang Lain",
 			Data:   exception.Error,
 		}
