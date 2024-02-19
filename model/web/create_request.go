@@ -1,14 +1,15 @@
 package web
 
+// alphanumdash berada di util validator.go
 type BarangCreateRequest struct {
-	NameProd   string `validate:"required,max=100,min=1" json:"nameprod"`
-	Hargaprod  int    `validate:"required" json:"hargaprod"`
-	Keterangan string `json:"keterangan"`
-	Stok       int    `json:"stok"`
+	NameProd   string `validate:"required,max=100,min=1,alphanumdash" json:"nameprod"`
+	Hargaprod  int    `validate:"required,gte=1" json:"hargaprod"`
+	Keterangan string `validate:"required,max=100,min=1,alphanumdash" json:"keterangan"`
+	Stok       int    `validate:"required,gte=1" json:"stok"`
 }
 
 type PenggunaCreateRequest struct {
-	Pengguna string `validate:"required,max=100,min=1" json:"pengguna"`
-	Email    string `validate:"required" json:"email"`
-	Sandi    string `validate:"required,max=100,min=1" json:"sandi"`
+	Pengguna string `validate:"required,max=100,min=1,alphanum" json:"pengguna"`
+	Email    string `validate:"required,email" json:"email"`
+	Sandi    string `validate:"required,max=100,min=1,alphanum" json:"sandi"`
 }

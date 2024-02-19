@@ -9,6 +9,7 @@ import (
 	"github.com/Jehanv60/model/domain"
 	"github.com/Jehanv60/model/web"
 	"github.com/Jehanv60/repository"
+	"github.com/Jehanv60/util"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -27,8 +28,9 @@ func NewBarangService(barangRepository repository.BarangRepository, DB *sql.DB, 
 }
 
 func (service *BarangServiceImpl) Create(ctx context.Context, request web.BarangCreateRequest) web.BarangResponse {
+	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
 	err := service.Validate.Struct(request)
-	helper.PanicError(err)
+	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
@@ -43,8 +45,9 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 }
 
 func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangUpdate) web.BarangResponse {
+	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
 	err := service.Validate.Struct(update)
-	helper.PanicError(err)
+	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)

@@ -29,7 +29,7 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 		helper.WriteToResponse(w, map[string]interface{}{
 			"Code":    400,
 			"Status":  "Bad Request",
-			"Message": "Data Masih Kosong Mohon Dilengkapi",
+			"Message": "Inputan Masih Kosong Mohon Dilengkapi",
 		})
 	} else if webResponse.Pengguna != penggunaId.Pengguna || webResponse.Email != penggunaId.Email || !isvalid {
 		w.Header().Set("Content-Type", "application/json")

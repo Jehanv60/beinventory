@@ -29,23 +29,53 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	tokenn, err := r.Cookie(Token)
 	if ApiKey == "" || err == http.ErrNoCookie {
 		if r.Method != "POST" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
 			webResponse := web.WebResponse{
 				Code:   http.StatusUnauthorized,
 				Status: "Mohon Login Dulu",
 			}
 			helper.WriteToResponse(w, webResponse)
-		} else if r.Method == "POST" && r.URL.Path == "/api/login" {
-			middleware.Handler.ServeHTTP(w, r)
-		} else if r.Method == "POST" {
-			middleware.Handler.ServeHTTP(w, r)
+		} else {
+			switch r.URL.Path {
+			case "/api/login":
+				middleware.Handler.ServeHTTP(w, r)
+			case "/api/pengguna":
+				middleware.Handler.ServeHTTP(w, r)
+			case "/api/logout":
+				middleware.Handler.ServeHTTP(w, r)
+			default:
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				webResponse := web.WebResponse{
+					Code:   http.StatusUnauthorized,
+					Status: "Mohon Login Dulu",
+				}
+				helper.WriteToResponse(w, webResponse)
+			}
 		}
 	} else if ApiKey == tokenn.Value {
-		middleware.Handler.ServeHTTP(w, r)
-		tokenstring, err := util.Decodetoken(tokenn.Value)
-		helper.PanicError(err)
-		helper.WriteToResponse(w, map[string]interface{}{
-			"User": tokenstring["pengguna"],
-		})
+		if r.Method == "POST" {
+			switch r.URL.Path {
+			case "/api/barang":
+				middleware.Handler.ServeHTTP(w, r)
+			default:
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				webResponse := web.WebResponse{
+					Code:   http.StatusUnauthorized,
+					Status: "Error?",
+				}
+				helper.WriteToResponse(w, webResponse)
+			}
+		} else {
+			middleware.Handler.ServeHTTP(w, r)
+			tokenstring, err := util.Decodetoken(tokenn.Value)
+			helper.PanicError(err)
+			helper.WriteToResponse(w, map[string]interface{}{
+				"User": tokenstring["pengguna"],
+			})
+		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)

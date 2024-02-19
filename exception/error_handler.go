@@ -6,7 +6,6 @@ import (
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
-	"github.com/go-playground/validator/v10"
 )
 
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
@@ -23,14 +22,18 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
 }
 
 func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
-	exception, ok := err.(validator.ValidationErrors)
+	exception, ok := err.(ValidateFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
+		var resulf []string
+		for _, errVal := range exception.Error {
+			resulf = append(resulf, errVal.Error())
+		}
 		webResponse := web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   exception.Error(),
+			Data:   resulf,
 		}
 		helper.WriteToResponse(w, webResponse)
 		return true
