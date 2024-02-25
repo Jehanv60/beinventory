@@ -39,7 +39,7 @@ func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.Peng
 		Email:    request.Email,
 		Sandi:    request.Sandi,
 	}
-	service.FindByPenggunaRegister(ctx, penggunas.Pengguna)
+	service.FindByPenggunaRegister(ctx, penggunas.Pengguna, penggunas.Email)
 	hashedPass, err := util.Hashpassword(penggunas.Sandi)
 	helper.PanicError(err)
 	penggunas.Sandi = hashedPass
@@ -70,11 +70,11 @@ func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int
 }
 
 // FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, NamaPengguna string) web.PenggunaResponse {
+func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, NamaPengguna, Email string) web.PenggunaResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, NamaPengguna)
+	penggunas, err := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, NamaPengguna, Email)
 	if err != nil {
 		panic(exception.NewSameFound(err.Error()))
 	}
@@ -87,9 +87,7 @@ func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, Nam
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	penggunas, err := service.PenggunaRepository.FindByPenggunaLogin(ctx, tx, NamaPengguna)
-	if err != nil {
-		panic(exception.NewSameFound(err.Error()))
-	}
+	helper.PanicError(err)
 	return helper.ToPenggunaResponse(penggunas)
 }
 

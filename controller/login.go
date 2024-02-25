@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -32,7 +31,6 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 			"Message": "Inputan Masih Kosong Mohon Dilengkapi",
 		})
 	} else if webResponse.Pengguna != penggunaId.Email && !isvalid || webResponse.Pengguna != penggunaId.Pengguna && !isvalid {
-		log.Println(webResponse.Pengguna, penggunaId.Pengguna, penggunaId.Email)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		helper.WriteToResponse(w, map[string]interface{}{

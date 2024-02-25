@@ -64,7 +64,8 @@ func (controller *PenggunaControllerImpl) FindById(w http.ResponseWriter, r *htt
 // FindById implements PenggunaController.
 func (controller *PenggunaControllerImpl) FindByPenggunaRegister(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	id := params.ByName("NamaPengguna")
-	penggunaResponse := controller.PenggunaService.FindByPenggunaRegister(r.Context(), id)
+	email := params.ByName("Email")
+	penggunaResponse := controller.PenggunaService.FindByPenggunaRegister(r.Context(), id, email)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "Ok",

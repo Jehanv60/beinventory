@@ -47,9 +47,9 @@ func (repository *PenggunaRepoImpl) FindById(ctx context.Context, tx *sql.Tx, pe
 	}
 }
 
-func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error) {
-	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1"
-	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna)
+func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna, Email string) (domain.Pengguna, error) {
+	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1 or email = $2"
+	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna, Email)
 	helper.PanicError(err)
 	pengguna := domain.Pengguna{}
 	defer rows.Close()
@@ -57,6 +57,9 @@ func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, 
 		rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
 		if NamaPengguna == pengguna.Pengguna {
 			return pengguna, errors.New("pengguna sudah ada")
+		}
+		if Email == pengguna.Email {
+			return pengguna, errors.New("email sudah ada")
 		}
 	}
 	return pengguna, nil
