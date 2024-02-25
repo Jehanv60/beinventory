@@ -4,6 +4,6 @@ API Backend dibuat dari pembelajaran mengenai golang dari youtube, udemy dan lai
 
 Fitur yang sudah ada pada saat ini :
 1. Register User
-2. Login
+2. Login(dapat menggunakan username atau email)
 3. Inventory Barang(Create, Read, Update dan Delete)
 4. Data Pengguna(Create, Read dan Update)
