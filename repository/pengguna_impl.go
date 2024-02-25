@@ -63,7 +63,7 @@ func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, 
 }
 
 func (repository *PenggunaRepoImpl) FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error) {
-	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1"
+	SQL := "select id, pengguna, email, password from pengguna where email = $1 or pengguna = $1"
 	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna)
 	helper.PanicError(err)
 	pengguna := domain.Pengguna{}

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -19,11 +20,10 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 	penggunaId := controller.PenggunaService.FindByPenggunaLogin(r.Context(), penggunaCreateRequest.Pengguna)
 	webResponse := web.LoginRequest{
 		Pengguna: penggunaCreateRequest.Pengguna,
-		Email:    penggunaCreateRequest.Email,
 		Sandi:    penggunaCreateRequest.Sandi,
 	}
 	isvalid := util.Unhashpassword(webResponse.Sandi, penggunaId.Sandi)
-	if webResponse.Pengguna == "" || webResponse.Email == "" || webResponse.Sandi == "" {
+	if webResponse.Pengguna == "" || webResponse.Sandi == "" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		helper.WriteToResponse(w, map[string]interface{}{
@@ -31,7 +31,8 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 			"Status":  "Bad Request",
 			"Message": "Inputan Masih Kosong Mohon Dilengkapi",
 		})
-	} else if webResponse.Pengguna != penggunaId.Pengguna || webResponse.Email != penggunaId.Email || !isvalid {
+	} else if webResponse.Pengguna != penggunaId.Email && !isvalid || webResponse.Pengguna != penggunaId.Pengguna && !isvalid {
+		log.Println(webResponse.Pengguna, penggunaId.Pengguna, penggunaId.Email)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		helper.WriteToResponse(w, map[string]interface{}{
@@ -42,7 +43,6 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 	} else {
 		claims := jwt.MapClaims{}
 		claims["pengguna"] = penggunaCreateRequest.Pengguna
-		claims["email"] = penggunaCreateRequest.Email
 		claims["sandi"] = penggunaCreateRequest.Sandi
 		// claims["exp"] = time.Now().Add(time.Hour * 5).Unix()
 		Token, err := util.GenerateToken(&claims)
