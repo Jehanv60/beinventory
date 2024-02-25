@@ -9,7 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func ValidateSelf(fl validator.FieldLevel) bool {
+func ValidateAlphanumdash(fl validator.FieldLevel) bool {
 	validation := fl.Field().String()
 	simbol, err := regexp.Compile("^[-a-zA-Z0-9 _]*$")
 	helper.PanicError(err)

@@ -28,7 +28,7 @@ func NewBarangService(barangRepository repository.BarangRepository, DB *sql.DB, 
 }
 
 func (service *BarangServiceImpl) Create(ctx context.Context, request web.BarangCreateRequest) web.BarangResponse {
-	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
+	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(request)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
@@ -45,7 +45,7 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 }
 
 func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangUpdate) web.BarangResponse {
-	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
+	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(update)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()

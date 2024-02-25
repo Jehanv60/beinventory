@@ -29,7 +29,6 @@ func NewPenggunaService(penggunaRepository repository.PenggunaRepository, DB *sq
 
 // Create implements PenggunaService.
 func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.PenggunaCreateRequest) web.PenggunaResponse {
-	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
 	err := service.Validate.Struct(request)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
@@ -96,7 +95,7 @@ func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, Nam
 
 // Update implements PenggunaService.
 func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.PenggunaUpdate) web.PenggunaResponse {
-	service.Validate.RegisterValidation("alphanumdash", util.ValidateSelf)
+	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(update)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
