@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/domain"
@@ -51,15 +52,17 @@ func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, 
 	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1 or email = $2"
 	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna, Email)
 	helper.PanicError(err)
+	nama := "Nama"
+	email := "Email"
 	pengguna := domain.Pengguna{}
 	defer rows.Close()
 	if rows.Next() {
 		rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
 		if NamaPengguna == pengguna.Pengguna {
-			return pengguna, errors.New("pengguna sudah ada")
+			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", nama, NamaPengguna)
 		}
 		if Email == pengguna.Email {
-			return pengguna, errors.New("email sudah ada")
+			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", email, Email)
 		}
 	}
 	return pengguna, nil

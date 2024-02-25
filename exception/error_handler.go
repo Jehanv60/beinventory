@@ -26,14 +26,14 @@ func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bo
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		var resulf []string
+		var result []string
 		for _, errVal := range exception.Error {
-			resulf = append(resulf, errVal.Error())
+			result = append(result, errVal.Error())
 		}
 		webResponse := web.WebResponse{
 			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
-			Data:   resulf,
+			Data:   result,
 		}
 		helper.WriteToResponse(w, webResponse)
 		return true
@@ -49,7 +49,7 @@ func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool
 		w.WriteHeader(http.StatusNotFound)
 		webResponse := web.WebResponse{
 			Code:   http.StatusNotFound,
-			Status: "Data Tidak Ditemukan",
+			Status: "Not Found",
 			Data:   exception.Error,
 		}
 		helper.WriteToResponse(w, webResponse)
@@ -67,7 +67,7 @@ func sameFoundError(w http.ResponseWriter, r *http.Request, err interface{}) boo
 		w.WriteHeader(http.StatusUnauthorized)
 		webResponse := web.WebResponse{
 			Code:   http.StatusUnauthorized,
-			Status: "Pengguna Sudah Ada, Mohon Ganti Dengan Yang Lain",
+			Status: "Status Unauthorized",
 			Data:   exception.Error,
 		}
 		helper.WriteToResponse(w, webResponse)
