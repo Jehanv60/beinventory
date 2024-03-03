@@ -8,11 +8,11 @@ import (
 )
 
 type BarangRepository interface {
-	Save(ctx context.Context, tx *sql.Tx, barang domain.Barang) domain.Barang
-	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang) domain.Barang
-	Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang)
-	FindById(ctx context.Context, tx *sql.Tx, barangId int) (domain.Barang, error)
-	FindAll(ctx context.Context, tx *sql.Tx) []domain.Barang
+	Save(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
+	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
+	Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int)
+	FindById(ctx context.Context, tx *sql.Tx, barangId int, idUser int) (domain.Barang, error)
+	FindAll(ctx context.Context, tx *sql.Tx, idUser int) []domain.Barang
 }
 
 type PenggunaRepository interface {

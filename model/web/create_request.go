@@ -6,6 +6,7 @@ type BarangCreateRequest struct {
 	Hargaprod  int    `validate:"required,gte=1" json:"hargaprod"`
 	Keterangan string `validate:"required,max=100,min=1,alphanumdash" json:"keterangan"`
 	Stok       int    `validate:"required,gte=1" json:"stok"`
+	IdUser     int    `json:"iduser"`
 }
 
 type PenggunaCreateRequest struct {

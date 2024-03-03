@@ -20,9 +20,10 @@ func main() {
 	validate := validator.New()
 	barangRepository := repository.NewRepositoryBarang()
 	barangService := service.NewBarangService(barangRepository, DB, validate)
-	barangController := controller.NewBarangController(barangService)
+
 	penggunaRepository := repository.NewRepositoryPengguna()
 	penggunaService := service.NewPenggunaService(penggunaRepository, DB, validate)
+	barangController := controller.NewBarangController(barangService, penggunaService)
 	penggunaController := controller.NewPenggunaController(penggunaService)
 	router := app.NewRouter(barangController, penggunaController)
 	server := http.Server{

@@ -9,19 +9,19 @@ import (
 )
 
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
-	if notFoundError(w, r, err) {
+	if notFoundError(w, err) {
 		return
 	}
-	if sameFoundError(w, r, err) {
+	if sameFoundError(w, err) {
 		return
 	}
-	if validationError(w, r, err) {
+	if validationError(w, err) {
 		return
 	}
-	internalServerError(w, r, err)
+	internalServerError(w, err)
 }
 
-func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+func validationError(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(ValidateFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
@@ -42,7 +42,7 @@ func validationError(w http.ResponseWriter, r *http.Request, err interface{}) bo
 	}
 }
 
-func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+func notFoundError(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(NotFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
@@ -57,10 +57,9 @@ func notFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool
 	} else {
 		return false
 	}
-
 }
 
-func sameFoundError(w http.ResponseWriter, r *http.Request, err interface{}) bool {
+func sameFoundError(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(SameFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
@@ -77,7 +76,7 @@ func sameFoundError(w http.ResponseWriter, r *http.Request, err interface{}) boo
 	}
 }
 
-func internalServerError(w http.ResponseWriter, r *http.Request, err interface{}) {
+func internalServerError(w http.ResponseWriter, err interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusInternalServerError)
 	webResponse := web.WebResponse{

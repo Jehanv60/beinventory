@@ -7,11 +7,11 @@ import (
 )
 
 type BarangService interface {
-	Create(ctx context.Context, request web.BarangCreateRequest) web.BarangResponse
-	Update(ctx context.Context, update web.BarangUpdate) web.BarangResponse
-	Delete(ctx context.Context, barangId int)
-	FindById(ctx context.Context, barangId int) web.BarangResponse
-	FindAll(ctx context.Context) []web.BarangResponse
+	Create(ctx context.Context, request web.BarangCreateRequest, idUser int) web.BarangResponse
+	Update(ctx context.Context, update web.BarangUpdate, idUser int) web.BarangResponse
+	Delete(ctx context.Context, barangId int, idUser int)
+	FindById(ctx context.Context, barangId int, idUser int) web.BarangResponse
+	FindAll(ctx context.Context, idUser int) []web.BarangResponse
 }
 
 type PenggunaService interface {

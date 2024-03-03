@@ -48,9 +48,10 @@ func setupRouter(db *sql.DB) http.Handler {
 	validate := validator.New()
 	barangRepository := repository.NewRepositoryBarang()
 	barangService := service.NewBarangService(barangRepository, DB, validate)
-	barangController := controller.NewBarangController(barangService)
+
 	penggunaRepository := repository.NewRepositoryPengguna()
 	penggunaService := service.NewPenggunaService(penggunaRepository, DB, validate)
+	barangController := controller.NewBarangController(barangService, penggunaService)
 	penggunaController := controller.NewPenggunaController(penggunaService)
 	router := app.NewRouter(barangController, penggunaController)
 	return middleware.NewAuthMiddleware(router)
@@ -110,7 +111,7 @@ func TestUpdateSucces(t *testing.T) {
 		NameProd:   "lala",
 		Hargaprod:  10,
 		Keterangan: "gg",
-	})
+	}, 107)
 	tx.Commit()
 	router := setupRouter(db)
 	requestBody := strings.NewReader(`{"nameprod": "hehe", "hargaprod": 2000,"keterangan": "rokok","stok";10}`)
@@ -146,7 +147,7 @@ func TestUpdateFailed(t *testing.T) {
 		NameProd:   "lala",
 		Hargaprod:  10,
 		Keterangan: "gg",
-	})
+	}, 107)
 	tx.Commit()
 	router := setupRouter(db)
 	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": "","stok":10}`)
@@ -177,7 +178,7 @@ func TestGetBarangSucces(t *testing.T) {
 		Hargaprod:  10,
 		Keterangan: "gg",
 		Stok:       10,
-	})
+	}, 107)
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -231,7 +232,7 @@ func TestDeleteSucces(t *testing.T) {
 		NameProd:   "lala",
 		Hargaprod:  10,
 		Keterangan: "gg",
-	})
+	}, 107)
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -280,13 +281,13 @@ func TestListBarangSucces(t *testing.T) {
 		Hargaprod:  10,
 		Keterangan: "gg",
 		Stok:       20,
-	})
+	}, 107)
 	barang1 := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala1",
 		Hargaprod:  101,
 		Keterangan: "gg1",
 		Stok:       30,
-	})
+	}, 107)
 	tx.Commit()
 	router := setupRouter(db)
 

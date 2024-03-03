@@ -8,6 +8,7 @@ import (
 func ToBarangResponse(barang domain.Barang) web.BarangResponse {
 	return web.BarangResponse{
 		Id:         barang.Id,
+		IdUser:     barang.IdUser,
 		NameProd:   barang.NameProd,
 		Hargaprod:  barang.Hargaprod,
 		Keterangan: barang.Keterangan,

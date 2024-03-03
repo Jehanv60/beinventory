@@ -27,7 +27,7 @@ func NewBarangService(barangRepository repository.BarangRepository, DB *sql.DB, 
 	}
 }
 
-func (service *BarangServiceImpl) Create(ctx context.Context, request web.BarangCreateRequest) web.BarangResponse {
+func (service *BarangServiceImpl) Create(ctx context.Context, request web.BarangCreateRequest, idUser int) web.BarangResponse {
 	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(request)
 	util.ErrValidateSelf(err)
@@ -40,18 +40,18 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 		Keterangan: request.Keterangan,
 		Stok:       request.Stok,
 	}
-	barangs = service.BarangRepository.Save(ctx, tx, barangs)
+	barangs = service.BarangRepository.Save(ctx, tx, barangs, idUser)
 	return helper.ToBarangResponse(barangs)
 }
 
-func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangUpdate) web.BarangResponse {
+func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangUpdate, idUser int) web.BarangResponse {
 	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
 	err := service.Validate.Struct(update)
 	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, update.Id)
+	barangs, err := service.BarangRepository.FindById(ctx, tx, update.Id, idUser)
 	barangs.NameProd = update.NameProd
 	barangs.Hargaprod = update.Hargaprod
 	barangs.Keterangan = update.Keterangan
@@ -59,36 +59,36 @@ func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangU
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
 	}
-	barangs = service.BarangRepository.Update(ctx, tx, barangs)
+	barangs = service.BarangRepository.Update(ctx, tx, barangs, idUser)
 	return helper.ToBarangResponse(barangs)
 }
 
-func (service *BarangServiceImpl) Delete(ctx context.Context, barangId int) {
+func (service *BarangServiceImpl) Delete(ctx context.Context, barangId int, idUser int) {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId)
+	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
 	}
-	service.BarangRepository.Delete(ctx, tx, barangs)
+	service.BarangRepository.Delete(ctx, tx, barangs, idUser)
 }
 
-func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int) web.BarangResponse {
+func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int, idUser int) web.BarangResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId)
+	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
 	}
 	return helper.ToBarangResponse(barangs)
 }
 
-func (service *BarangServiceImpl) FindAll(ctx context.Context) []web.BarangResponse {
+func (service *BarangServiceImpl) FindAll(ctx context.Context, idUser int) []web.BarangResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs := service.BarangRepository.FindAll(ctx, tx)
+	barangs := service.BarangRepository.FindAll(ctx, tx, idUser)
 	return helper.ToBarangResponses(barangs)
 }
