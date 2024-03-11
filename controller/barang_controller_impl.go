@@ -46,7 +46,6 @@ func (controller *BarangControllerImpl) Update(w http.ResponseWriter, r *http.Re
 	helper.PanicError(err)
 	barangUpdate.Id = id
 	barangUpdate.IdUser = idUser.Id
-	controller.BarangService.FindByNameUpdate(r.Context(), barangUpdate.NameProd, idUser.Id)
 	barangResponse := controller.BarangService.Update(r.Context(), barangUpdate, idUser.Id)
 	webResponse := web.WebResponse{
 		Code:   200,

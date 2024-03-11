@@ -84,6 +84,7 @@ func (repository *BarangRepoImpl) FindByNameUpdate(ctx context.Context, tx *sql.
 		}
 	}
 	return barang, nil
+
 }
 
 func (repository *BarangRepoImpl) FindAll(ctx context.Context, tx *sql.Tx, idUser int) []domain.Barang {

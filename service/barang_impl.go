@@ -60,6 +60,17 @@ func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangU
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
 	}
+	barangss, err := service.BarangRepository.FindByNameUpdate(ctx, tx, barangs.NameProd, idUser)
+	if barangs.Id == barangss.Id {
+		barangss.Hargaprod = update.Hargaprod
+		barangss.Keterangan = update.Keterangan
+		barangss.Stok = update.Stok
+		barangss = service.BarangRepository.Update(ctx, tx, barangs, idUser)
+		return helper.ToBarangResponse(barangss)
+	}
+	if err != nil {
+		panic(exception.NewSameFound(err.Error()))
+	}
 	barangs = service.BarangRepository.Update(ctx, tx, barangs, idUser)
 	return helper.ToBarangResponse(barangs)
 }
