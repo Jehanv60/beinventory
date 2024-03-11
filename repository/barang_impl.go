@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/domain"
@@ -51,6 +52,38 @@ func (repository *BarangRepoImpl) FindById(ctx context.Context, tx *sql.Tx, bara
 	} else {
 		return barang, errors.New("data barang tidak ditemukan")
 	}
+}
+
+func (repository *BarangRepoImpl) FindByNameRegister(ctx context.Context, tx *sql.Tx, barangName string, idUser int) (domain.Barang, error) {
+	SQL := "select id, iduser, nameprod, hargaprod, keterangan, stok from barang where nameprod = $1 and iduser=$2"
+	rows, err := tx.QueryContext(ctx, SQL, barangName, idUser)
+	helper.PanicError(err)
+	namas := "Nama Barang"
+	barang := domain.Barang{}
+	defer rows.Close()
+	if rows.Next() {
+		rows.Scan(&barang.Id, &barang.IdUser, &barang.NameProd, &barang.Hargaprod, &barang.Keterangan, &barang.Stok)
+		if barangName == barang.NameProd {
+			return barang, fmt.Errorf("%s %s Sudah Digunakan, Mohon Untuk Cek Di Inventory", namas, barangName)
+		}
+	}
+	return barang, nil
+}
+
+func (repository *BarangRepoImpl) FindByNameUpdate(ctx context.Context, tx *sql.Tx, barangName string, idUser int) (domain.Barang, error) {
+	SQL := "select id, iduser, nameprod, hargaprod, keterangan, stok from barang where nameprod = $1 and iduser=$2"
+	rows, err := tx.QueryContext(ctx, SQL, barangName, idUser)
+	helper.PanicError(err)
+	namas := "Nama Barang"
+	barang := domain.Barang{}
+	defer rows.Close()
+	if rows.Next() {
+		rows.Scan(&barang.Id, &barang.IdUser, &barang.NameProd, &barang.Hargaprod, &barang.Keterangan, &barang.Stok)
+		if barangName == barang.NameProd {
+			return barang, fmt.Errorf("%s %s Sudah Digunakan, Mohon Diganti Dengan Yang lain", namas, barangName)
+		}
+	}
+	return barang, nil
 }
 
 func (repository *BarangRepoImpl) FindAll(ctx context.Context, tx *sql.Tx, idUser int) []domain.Barang {

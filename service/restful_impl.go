@@ -11,6 +11,8 @@ type BarangService interface {
 	Update(ctx context.Context, update web.BarangUpdate, idUser int) web.BarangResponse
 	Delete(ctx context.Context, barangId int, idUser int)
 	FindById(ctx context.Context, barangId int, idUser int) web.BarangResponse
+	FindByNameRegister(ctx context.Context, barangName string, idUser int) web.BarangResponse
+	FindByNameUpdate(ctx context.Context, barangName string, idUser int) web.BarangResponse
 	FindAll(ctx context.Context, idUser int) []web.BarangResponse
 }
 

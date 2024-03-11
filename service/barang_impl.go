@@ -35,6 +35,7 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	barangs := domain.Barang{
+		IdUser:     idUser,
 		NameProd:   request.NameProd,
 		Hargaprod:  request.Hargaprod,
 		Keterangan: request.Keterangan,
@@ -81,6 +82,28 @@ func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int, id
 	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
+	}
+	return helper.ToBarangResponse(barangs)
+}
+
+func (service *BarangServiceImpl) FindByNameRegister(ctx context.Context, barangName string, idUser int) web.BarangResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicError(err)
+	defer helper.CommitOrRollback(tx)
+	barangs, err := service.BarangRepository.FindByNameRegister(ctx, tx, barangName, idUser)
+	if err != nil {
+		panic(exception.NewSameFound(err.Error()))
+	}
+	return helper.ToBarangResponse(barangs)
+}
+
+func (service *BarangServiceImpl) FindByNameUpdate(ctx context.Context, barangName string, idUser int) web.BarangResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicError(err)
+	defer helper.CommitOrRollback(tx)
+	barangs, err := service.BarangRepository.FindByNameUpdate(ctx, tx, barangName, idUser)
+	if err != nil {
+		panic(exception.NewSameFound(err.Error()))
 	}
 	return helper.ToBarangResponse(barangs)
 }

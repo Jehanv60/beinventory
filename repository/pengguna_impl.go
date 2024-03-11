@@ -48,29 +48,29 @@ func (repository *PenggunaRepoImpl) FindById(ctx context.Context, tx *sql.Tx, pe
 	}
 }
 
-func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna, Email string) (domain.Pengguna, error) {
+func (repository *PenggunaRepoImpl) FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, namaPengguna, email string) (domain.Pengguna, error) {
 	SQL := "select id, pengguna, email, password from pengguna where pengguna = $1 or email = $2"
-	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna, Email)
+	rows, err := tx.QueryContext(ctx, SQL, namaPengguna, email)
 	helper.PanicError(err)
-	nama := "Nama"
-	email := "Email"
+	namas := "Nama pengguna"
+	emails := "Email"
 	pengguna := domain.Pengguna{}
 	defer rows.Close()
 	if rows.Next() {
 		rows.Scan(&pengguna.Id, &pengguna.Pengguna, &pengguna.Email, &pengguna.Sandi)
-		if NamaPengguna == pengguna.Pengguna {
-			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", nama, NamaPengguna)
+		if namaPengguna == pengguna.Pengguna {
+			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", namas, namaPengguna)
 		}
-		if Email == pengguna.Email {
-			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", email, Email)
+		if email == pengguna.Email {
+			return pengguna, fmt.Errorf("%s %s Sudah Digunakan", emails, email)
 		}
 	}
 	return pengguna, nil
 }
 
-func (repository *PenggunaRepoImpl) FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error) {
+func (repository *PenggunaRepoImpl) FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, namaPengguna string) (domain.Pengguna, error) {
 	SQL := "select id, pengguna, email, password from pengguna where email = $1 or pengguna = $1"
-	rows, err := tx.QueryContext(ctx, SQL, NamaPengguna)
+	rows, err := tx.QueryContext(ctx, SQL, namaPengguna)
 	helper.PanicError(err)
 	pengguna := domain.Pengguna{}
 	defer rows.Close()

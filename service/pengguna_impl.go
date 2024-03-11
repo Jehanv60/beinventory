@@ -39,7 +39,6 @@ func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.Peng
 		Email:    request.Email,
 		Sandi:    request.Sandi,
 	}
-	service.FindByPenggunaRegister(ctx, penggunas.Pengguna, penggunas.Email)
 	hashedPass, err := util.Hashpassword(penggunas.Sandi)
 	helper.PanicError(err)
 	penggunas.Sandi = hashedPass
@@ -66,15 +65,14 @@ func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int
 		panic(exception.NewNotFound(err.Error()))
 	}
 	return helper.ToPenggunaResponse(penggunas)
-
 }
 
 // FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, NamaPengguna, Email string) web.PenggunaResponse {
+func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, namaPengguna, email string) web.PenggunaResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, NamaPengguna, Email)
+	penggunas, err := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, namaPengguna, email)
 	if err != nil {
 		panic(exception.NewSameFound(err.Error()))
 	}
@@ -82,11 +80,11 @@ func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, 
 }
 
 // FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, NamaPengguna string) web.PenggunaResponse {
+func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, namaPengguna string) web.PenggunaResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindByPenggunaLogin(ctx, tx, NamaPengguna)
+	penggunas, err := service.PenggunaRepository.FindByPenggunaLogin(ctx, tx, namaPengguna)
 	helper.PanicError(err)
 	return helper.ToPenggunaResponse(penggunas)
 }
@@ -100,12 +98,12 @@ func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.Pengg
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	penggunas, err := service.PenggunaRepository.FindById(ctx, tx, update.Id)
-	penggunas.Pengguna = update.Pengguna
-	penggunas.Email = update.Email
-	penggunas.Sandi = update.Sandi
 	if err != nil {
 		panic(exception.NewNotFound(err.Error()))
 	}
+	penggunas.Pengguna = update.Pengguna
+	penggunas.Email = update.Email
+	penggunas.Sandi = update.Sandi
 	hashedPass, err := util.Hashpassword(penggunas.Sandi)
 	helper.PanicError(err)
 	penggunas.Sandi = hashedPass

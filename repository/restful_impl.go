@@ -12,6 +12,8 @@ type BarangRepository interface {
 	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
 	Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int)
 	FindById(ctx context.Context, tx *sql.Tx, barangId int, idUser int) (domain.Barang, error)
+	FindByNameRegister(ctx context.Context, tx *sql.Tx, barangName string, idUser int) (domain.Barang, error)
+	FindByNameUpdate(ctx context.Context, tx *sql.Tx, barangName string, idUser int) (domain.Barang, error)
 	FindAll(ctx context.Context, tx *sql.Tx, idUser int) []domain.Barang
 }
 
