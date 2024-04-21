@@ -3,8 +3,11 @@ package web
 type BarangResponse struct {
 	Id         int    `json:"id"`
 	IdUser     int    `json:"iduser"`
+	KodeBarang string `json:"kodebarang"`
 	NameProd   string `json:"nameprod"`
-	Hargaprod  int    `json:"hargaprod"`
+	HargaProd  int    `json:"HargaProd"`
+	JualProd   int    `json:"jualprod"`
+	ProfitProd int    `json:"profitprod"`
 	Keterangan string `json:"keterangan"`
 	Stok       int    `json:"stok"`
 }

@@ -12,6 +12,9 @@ func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
 	if notFoundError(w, err) {
 		return
 	}
+	if sameNotEqual(w, err) {
+		return
+	}
 	if sameFoundError(w, err) {
 		return
 	}
@@ -60,6 +63,23 @@ func notFoundError(w http.ResponseWriter, err interface{}) bool {
 }
 
 func sameFoundError(w http.ResponseWriter, err interface{}) bool {
+	exception, ok := err.(SameFound)
+	if ok {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
+		webResponse := web.WebResponse{
+			Code:   http.StatusUnauthorized,
+			Status: "Status Unauthorized",
+			Data:   exception.Error,
+		}
+		helper.WriteToResponse(w, webResponse)
+		return true
+	} else {
+		return false
+	}
+}
+
+func sameNotEqual(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(SameFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")

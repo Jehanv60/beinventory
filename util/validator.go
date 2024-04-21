@@ -31,6 +31,8 @@ func ErrValidateSelf(err error) {
 				errCatch = fmt.Errorf("%s:Tidak Boleh Kosong", errVal.Field())
 			case "alphanum":
 				errCatch = fmt.Errorf("%s:Tidak Boleh Spasi dan Simbol", errVal.Field())
+			case "gte":
+				errCatch = fmt.Errorf("%s:Angka Tidak Boleh Mines", errVal.Field())
 			default:
 				errCatch = fmt.Errorf("%s:Error Belum Ada", errVal.Field())
 			}

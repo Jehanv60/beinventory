@@ -15,6 +15,7 @@ import (
 
 	"github.com/Jehanv60/app"
 	"github.com/Jehanv60/controller"
+	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/middleware"
 	"github.com/Jehanv60/model/domain"
 	"github.com/Jehanv60/repository"
@@ -43,7 +44,7 @@ func NewDBTest() *sql.DB {
 	db.SetConnMaxLifetime(60 * time.Minute)
 	return db
 }
-func setupRouter(db *sql.DB) http.Handler {
+func setupRouter(*sql.DB) http.Handler {
 	DB := app.NewDb()
 	validate := validator.New()
 	barangRepository := repository.NewRepositoryBarang()
@@ -61,7 +62,7 @@ func TestCreateSucces(t *testing.T) {
 	db := NewDBTest()
 	truncateDB(db)
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "Surya", "hargaprod": 1000,"keterangan": "test", "stok":20}`)
+	requestBody := strings.NewReader(`{"nameprod": "Surya", "HargaProd": 1000,"keterangan": "test", "stok":20}`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/barang", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -76,7 +77,7 @@ func TestCreateSucces(t *testing.T) {
 	assert.Equal(t, 200, int(responseBody["code"].(float64))) //alternatif convert 200 menjadi float64(200)
 	assert.Equal(t, "Ok", responseBody["status"])
 	assert.Equal(t, "Surya", responseBody["data"].(map[string]interface{})["nameprod"])
-	assert.Equal(t, 1000, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
+	assert.Equal(t, 1000, int(responseBody["data"].(map[string]interface{})["HargaProd"].(float64)))
 	assert.Equal(t, "test", responseBody["data"].(map[string]interface{})["keterangan"])
 	assert.Equal(t, 20, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
@@ -85,7 +86,7 @@ func TestCreateFailed(t *testing.T) {
 	db := NewDBTest()
 	truncateDB(db)
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": "","stok":0}`)
+	requestBody := strings.NewReader(`{"nameprod": "", "HargaProd": 0,"keterangan": "","stok":0}`)
 	request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/barang", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -107,14 +108,17 @@ func TestUpdateSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
-		Hargaprod:  10,
+		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
+	if err != nil {
+		helper.PanicError(err)
+	}
 	tx.Commit()
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "hehe", "hargaprod": 2000,"keterangan": "rokok","stok";10}`)
+	requestBody := strings.NewReader(`{"nameprod": "hehe", "HargaProd": 2000,"keterangan": "rokok","stok";10}`)
 	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -132,7 +136,7 @@ func TestUpdateSucces(t *testing.T) {
 	//klu udemy code menjadi assert.Equal(t, barang.Id, int(responseBody["data"].(map[string]interface{})["id"].(float64)))
 	assert.Equal(t, float64(barang.Id), responseBody["data"].(map[string]interface{})["id"])
 	assert.Equal(t, "hehe", responseBody["data"].(map[string]interface{})["nameprod"])
-	assert.Equal(t, 2000, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
+	assert.Equal(t, 2000, int(responseBody["data"].(map[string]interface{})["HargaProd"].(float64)))
 	assert.Equal(t, "rokok", responseBody["data"].(map[string]interface{})["keterangan"])
 	assert.Equal(t, 10, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
@@ -143,14 +147,17 @@ func TestUpdateFailed(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
-		Hargaprod:  10,
+		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
+	if err != nil {
+		helper.PanicError(err)
+	}
 	tx.Commit()
 	router := setupRouter(db)
-	requestBody := strings.NewReader(`{"nameprod": "", "hargaprod": 0,"keterangan": "","stok":10}`)
+	requestBody := strings.NewReader(`{"nameprod": "", "HargaProd": 0,"keterangan": "","stok":10}`)
 	request := httptest.NewRequest(http.MethodPut, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-Key", "Rahasia")
@@ -173,12 +180,15 @@ func TestGetBarangSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
-		Hargaprod:  10,
+		HargaProd:  10,
 		Keterangan: "gg",
 		Stok:       10,
 	}, 107)
+	if err != nil {
+		helper.PanicError(err)
+	}
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -197,7 +207,7 @@ func TestGetBarangSucces(t *testing.T) {
 	//klu udemy code menjadi assert.Equal(t, barang.Id, int(responseBody["data"].(map[string]interface{})["id"].(float64)))
 	assert.Equal(t, float64(barang.Id), responseBody["data"].(map[string]interface{})["id"])
 	assert.Equal(t, barang.NameProd, responseBody["data"].(map[string]interface{})["nameprod"])
-	assert.Equal(t, barang.Hargaprod, int(responseBody["data"].(map[string]interface{})["hargaprod"].(float64)))
+	assert.Equal(t, barang.HargaProd, int(responseBody["data"].(map[string]interface{})["HargaProd"].(float64)))
 	assert.Equal(t, barang.Keterangan, responseBody["data"].(map[string]interface{})["keterangan"])
 	assert.Equal(t, barang.Stok, int(responseBody["data"].(map[string]interface{})["stok"].(float64)))
 }
@@ -228,11 +238,14 @@ func TestDeleteSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
-		Hargaprod:  10,
+		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
+	if err != nil {
+		helper.PanicError(err)
+	}
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -276,18 +289,24 @@ func TestListBarangSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
-		Hargaprod:  10,
+		HargaProd:  10,
 		Keterangan: "gg",
 		Stok:       20,
 	}, 107)
-	barang1 := barangRepository.Save(context.Background(), tx, domain.Barang{
+	if err != nil {
+		helper.PanicError(err)
+	}
+	barang1, err := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala1",
-		Hargaprod:  101,
+		HargaProd:  101,
 		Keterangan: "gg1",
 		Stok:       30,
 	}, 107)
+	if err != nil {
+		helper.PanicError(err)
+	}
 	tx.Commit()
 	router := setupRouter(db)
 

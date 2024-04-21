@@ -9,8 +9,11 @@ func ToBarangResponse(barang domain.Barang) web.BarangResponse {
 	return web.BarangResponse{
 		Id:         barang.Id,
 		IdUser:     barang.IdUser,
+		KodeBarang: barang.KodeBarang,
 		NameProd:   barang.NameProd,
-		Hargaprod:  barang.Hargaprod,
+		HargaProd:  barang.HargaProd,
+		JualProd:   barang.JualProd,
+		ProfitProd: barang.ProfitProd,
 		Keterangan: barang.Keterangan,
 		Stok:       barang.Stok,
 	}
