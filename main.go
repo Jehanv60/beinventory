@@ -20,12 +20,14 @@ func main() {
 	validate := validator.New()
 	barangRepository := repository.NewRepositoryBarang()
 	barangService := service.NewBarangService(barangRepository, DB, validate)
-
 	penggunaRepository := repository.NewRepositoryPengguna()
 	penggunaService := service.NewPenggunaService(penggunaRepository, DB, validate)
+	transaksiRepository := repository.NewRepositoryTransaksi()
+	transaksiService := service.NewTransaksiService(transaksiRepository, barangRepository, DB, validate)
 	barangController := controller.NewBarangController(barangService, penggunaService)
 	penggunaController := controller.NewPenggunaController(penggunaService)
-	router := app.NewRouter(barangController, penggunaController)
+	transaksiController := controller.NewTransaksiController(transaksiService, penggunaService, barangService)
+	router := app.NewRouter(barangController, penggunaController, transaksiController)
 	server := http.Server{
 		Addr:    "localhost:3000",
 		Handler: middleware.NewAuthMiddleware(router),

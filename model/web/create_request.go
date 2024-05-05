@@ -17,3 +17,14 @@ type PenggunaCreateRequest struct {
 	Email    string `validate:"required,email" json:"email"`
 	Sandi    string `validate:"required,max=100,min=1,alphanum" json:"sandi"`
 }
+
+type TransactionCreateRequest struct {
+	IdUser        int    `json:"iduser"`
+	Barang        string `validate:"required,max=100,min=1,alphanum" json:"kodebarang"`
+	KodePenjualan string `validate:"required,max=100,min=1,alphanum" json:"kodepenjualan"`
+	Jumlah        int    `validate:"required,gte=1" json:"jumlah"`
+	Bayar         int    `validate:"required,gte=1" json:"bayar"`
+	Kembali       int    `validate:"required,gte=1" json:"kembali"`
+	Total         int    `validate:"required,gte=1" json:"total"`
+	Tanggal       string `json:"tanggal"`
+}

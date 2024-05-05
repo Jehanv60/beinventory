@@ -25,3 +25,7 @@ type PenggunaController interface {
 	FindByPenggunaLogin(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
+
+type TransaksiController interface {
+	Create(w http.ResponseWriter, r *http.Request, params httprouter.Params)
+}

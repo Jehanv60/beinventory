@@ -6,7 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(barangController controller.BarangController, penggunaController controller.PenggunaController) *httprouter.Router {
+func NewRouter(barangController controller.BarangController, penggunaController controller.PenggunaController, transaksiController controller.TransaksiController) *httprouter.Router {
 	//barang
 	router := httprouter.New()
 	router.GET("/api/namabarang/:namaBarang", barangController.FindByNameRegister)
@@ -23,6 +23,8 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	router.POST("/api/pengguna", penggunaController.Create)
 	router.POST("/api/login", penggunaController.LoginAuth)
 	router.POST("/api/logout", controller.Logout)
+	//transaksi
+	router.POST("/api/transaksi", transaksiController.Create)
 	router.PanicHandler = exception.ErrorHandler
 	return router
 }

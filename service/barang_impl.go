@@ -35,7 +35,6 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	barangs := domain.Barang{
-		Id:         idUser,
 		IdUser:     idUser,
 		KodeBarang: request.KodeBarang,
 		NameProd:   request.NameProd,

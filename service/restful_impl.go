@@ -24,3 +24,8 @@ type PenggunaService interface {
 	FindByPenggunaLogin(ctx context.Context, NamaPengguna string) web.PenggunaResponse
 	FindAll(ctx context.Context) []web.PenggunaResponse
 }
+
+type TransaksiService interface {
+	Create(ctx context.Context, request web.TransactionCreateRequest, idUser int) web.TransaksiResponse
+	// FindByKode(ctx context.Context, kodeBarang string, idUser int) web.BarangResponse
+}

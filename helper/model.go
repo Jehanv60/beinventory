@@ -43,3 +43,17 @@ func ToPenggunaResponses(penggunas []domain.Pengguna) []web.PenggunaResponse {
 	}
 	return penggunaResponses
 }
+
+func ToTransaksiResponse(transaksi domain.Transaction) web.TransaksiResponse {
+	return web.TransaksiResponse{
+		Id:            transaksi.Id,
+		IdUser:        transaksi.IdUser,
+		Barang:        transaksi.Barang.KodeBarang,
+		KodePenjualan: transaksi.KodePenjualan,
+		Jumlah:        transaksi.Jumlah,
+		Bayar:         transaksi.Bayar,
+		Kembali:       transaksi.Kembali,
+		Total:         transaksi.Total,
+		Tanggal:       transaksi.Tanggal,
+	}
+}

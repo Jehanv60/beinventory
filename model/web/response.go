@@ -18,3 +18,15 @@ type PenggunaResponse struct {
 	Email    string `json:"email"`
 	Sandi    string `json:"sandi"`
 }
+
+type TransaksiResponse struct {
+	Id            int    `json:"id"`
+	IdUser        int    `json:"iduser"`
+	Barang        string `json:"kodebarang"`
+	KodePenjualan string `json:"kodepenjualan"`
+	Jumlah        int    `json:"jumlah"`
+	Bayar         int    `json:"bayar"`
+	Kembali       int    `json:"kembali"`
+	Total         int    `json:"total"`
+	Tanggal       string `json:"tanggal"`
+}

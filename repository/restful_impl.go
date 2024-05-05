@@ -25,3 +25,7 @@ type PenggunaRepository interface {
 	FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error)
 	FindAll(ctx context.Context, tx *sql.Tx) []domain.Pengguna
 }
+
+type TransaksiRepository interface {
+	Save(ctx context.Context, tx *sql.Tx, transaksi domain.Transaction, iduser int) domain.Transaction
+}

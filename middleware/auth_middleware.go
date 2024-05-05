@@ -59,12 +59,14 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 			switch r.URL.Path {
 			case "/api/barang":
 				middleware.Handler.ServeHTTP(w, r)
+			case "/api/transaksi":
+				middleware.Handler.ServeHTTP(w, r)
 			default:
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusUnauthorized)
 				webResponse := web.WebResponse{
 					Code:   http.StatusUnauthorized,
-					Status: "Error?",
+					Status: "End Point Unauthorized",
 				}
 				helper.WriteToResponse(w, webResponse)
 			}
