@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Jehanv60/exception"
 	"github.com/Jehanv60/helper"
@@ -34,6 +35,13 @@ func (service *PenggunaServiceImpl) Create(ctx context.Context, request web.Peng
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
+	penggunass := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, request.Pengguna, request.Email)
+	if penggunass.Pengguna == request.Pengguna {
+		panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan", request.Pengguna)))
+	}
+	if penggunass.Email == request.Email {
+		panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan", request.Email)))
+	}
 	penggunas := domain.Pengguna{
 		Pengguna: request.Pengguna,
 		Email:    request.Email,
@@ -60,21 +68,9 @@ func (service *PenggunaServiceImpl) FindById(ctx context.Context, penggunaId int
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindById(ctx, tx, penggunaId)
-	if err != nil {
-		panic(exception.NewNotFound(err.Error()))
-	}
-	return helper.ToPenggunaResponse(penggunas)
-}
-
-// FindById implements PenggunaService.
-func (service *PenggunaServiceImpl) FindByPenggunaRegister(ctx context.Context, namaPengguna, email string) web.PenggunaResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicError(err)
-	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, namaPengguna, email)
-	if err != nil {
-		panic(exception.NewSameFound(err.Error()))
+	penggunas := service.PenggunaRepository.FindById(ctx, tx, penggunaId)
+	if penggunas.Id != penggunaId {
+		panic(exception.NewNotFound("Data Tidak Ditemukan"))
 	}
 	return helper.ToPenggunaResponse(penggunas)
 }
@@ -84,8 +80,7 @@ func (service *PenggunaServiceImpl) FindByPenggunaLogin(ctx context.Context, nam
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindByPenggunaLogin(ctx, tx, namaPengguna)
-	helper.PanicError(err)
+	penggunas := service.PenggunaRepository.FindByPenggunaLogin(ctx, tx, namaPengguna)
 	return helper.ToPenggunaResponse(penggunas)
 }
 
@@ -97,9 +92,9 @@ func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.Pengg
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	penggunas, err := service.PenggunaRepository.FindById(ctx, tx, update.Id)
-	if err != nil {
-		panic(exception.NewNotFound(err.Error()))
+	penggunas := service.PenggunaRepository.FindById(ctx, tx, update.Id)
+	if penggunas.Id != update.Id {
+		panic(exception.NewNotFound("Data Tidak Ditemukan"))
 	}
 	penggunas.Pengguna = update.Pengguna
 	penggunas.Email = update.Email
@@ -107,6 +102,19 @@ func (service *PenggunaServiceImpl) Update(ctx context.Context, update web.Pengg
 	hashedPass, err := util.Hashpassword(penggunas.Sandi)
 	helper.PanicError(err)
 	penggunas.Sandi = hashedPass
+	penggunass := service.PenggunaRepository.FindByPenggunaRegister(ctx, tx, update.Pengguna, update.Email)
+	if penggunas.Id == penggunass.Id {
+		penggunas = service.PenggunaRepository.Update(ctx, tx, penggunas)
+		return helper.ToPenggunaResponse(penggunas)
+	}
+	if penggunas.Id != penggunass.Id {
+		if penggunas.Pengguna == penggunass.Pengguna {
+			panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan", update.Pengguna)))
+		}
+		if penggunas.Email == penggunass.Email {
+			panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan", update.Email)))
+		}
+	}
 	penggunas = service.PenggunaRepository.Update(ctx, tx, penggunas)
 	return helper.ToPenggunaResponse(penggunas)
 }

@@ -8,21 +8,21 @@ import (
 )
 
 type BarangRepository interface {
-	Save(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) (domain.Barang, error)
-	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) (domain.Barang, error)
+	Save(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
+	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
 	Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int)
-	FindById(ctx context.Context, tx *sql.Tx, barangId int, idUser int) (domain.Barang, error)
-	FindByNameRegister(ctx context.Context, tx *sql.Tx, kodeBarang string, barangName string, idUser int) (domain.Barang, error)
-	FindByNameUpdate(ctx context.Context, tx *sql.Tx, kodeBarang string, barangName string, idUser int) (domain.Barang, error)
+	FindById(ctx context.Context, tx *sql.Tx, barangId int, idUser int) domain.Barang
+	FindByNameRegister(ctx context.Context, tx *sql.Tx, kodeBarang string, barangName string, idUser int) domain.Barang
+	FindByNameUpdate(ctx context.Context, tx *sql.Tx, kodeBarang string, barangName string, idUser int) domain.Barang
 	FindAll(ctx context.Context, tx *sql.Tx, idUser int) []domain.Barang
 }
 
 type PenggunaRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, pengguna domain.Pengguna) domain.Pengguna
 	Update(ctx context.Context, tx *sql.Tx, pengguna domain.Pengguna) domain.Pengguna
-	FindById(ctx context.Context, tx *sql.Tx, penggunaId int) (domain.Pengguna, error)
-	FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna, Email string) (domain.Pengguna, error)
-	FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) (domain.Pengguna, error)
+	FindById(ctx context.Context, tx *sql.Tx, penggunaId int) domain.Pengguna
+	FindByPenggunaRegister(ctx context.Context, tx *sql.Tx, NamaPengguna, Email string) domain.Pengguna
+	FindByPenggunaLogin(ctx context.Context, tx *sql.Tx, NamaPengguna string) domain.Pengguna
 	FindAll(ctx context.Context, tx *sql.Tx) []domain.Pengguna
 }
 

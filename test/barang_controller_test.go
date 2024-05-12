@@ -15,7 +15,6 @@ import (
 
 	"github.com/Jehanv60/app"
 	"github.com/Jehanv60/controller"
-	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/middleware"
 	"github.com/Jehanv60/model/domain"
 	"github.com/Jehanv60/repository"
@@ -110,14 +109,11 @@ func TestUpdateSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
 		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
 	tx.Commit()
 	router := setupRouter(db)
 	requestBody := strings.NewReader(`{"nameprod": "hehe", "HargaProd": 2000,"keterangan": "rokok","stok";10}`)
@@ -149,14 +145,11 @@ func TestUpdateFailed(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
 		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
 	tx.Commit()
 	router := setupRouter(db)
 	requestBody := strings.NewReader(`{"nameprod": "", "HargaProd": 0,"keterangan": "","stok":10}`)
@@ -182,15 +175,13 @@ func TestGetBarangSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
 		HargaProd:  10,
 		Keterangan: "gg",
 		Stok:       10,
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
+
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodGet, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -240,14 +231,11 @@ func TestDeleteSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
 		HargaProd:  10,
 		Keterangan: "gg",
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
 	tx.Commit()
 	router := setupRouter(db)
 	request := httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/barang/"+strconv.Itoa(barang.Id), nil)
@@ -291,24 +279,19 @@ func TestListBarangSucces(t *testing.T) {
 
 	tx, _ := db.Begin()
 	barangRepository := repository.NewRepositoryBarang()
-	barang, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+	barang := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala",
 		HargaProd:  10,
 		Keterangan: "gg",
 		Stok:       20,
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
-	barang1, err := barangRepository.Save(context.Background(), tx, domain.Barang{
+
+	barang1 := barangRepository.Save(context.Background(), tx, domain.Barang{
 		NameProd:   "lala1",
 		HargaProd:  101,
 		Keterangan: "gg1",
 		Stok:       30,
 	}, 107)
-	if err != nil {
-		helper.PanicError(err)
-	}
 	tx.Commit()
 	router := setupRouter(db)
 

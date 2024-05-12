@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/Jehanv60/exception"
 	"github.com/Jehanv60/helper"
@@ -34,6 +35,13 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
+	barang := service.BarangRepository.FindByNameRegister(ctx, tx, request.KodeBarang, request.NameProd, idUser)
+	if barang.KodeBarang == request.KodeBarang {
+		panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan, Mohon Untuk Cek Di Inventory", request.KodeBarang)))
+	}
+	if barang.NameProd == request.NameProd {
+		panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan, Mohon Untuk Cek Di Inventory", request.NameProd)))
+	}
 	barangs := domain.Barang{
 		IdUser:     idUser,
 		KodeBarang: request.KodeBarang,
@@ -44,9 +52,10 @@ func (service *BarangServiceImpl) Create(ctx context.Context, request web.Barang
 		Keterangan: request.Keterangan,
 		Stok:       request.Stok,
 	}
-	barangs, err = service.BarangRepository.Save(ctx, tx, barangs, idUser)
-	if err != nil {
-		panic(exception.NewNotEqual(err.Error()))
+	barangs = service.BarangRepository.Save(ctx, tx, barangs, idUser)
+	//Validasi jika input dirubah dari inspect elemen
+	if barangs.ProfitProd < 0 {
+		panic(exception.NewNotEqual("Harga Profit Tidak Boleh Dibawah Harga Jual"))
 	}
 	return helper.ToBarangResponse(barangs)
 }
@@ -58,7 +67,10 @@ func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangU
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, update.Id, idUser)
+	barangs := service.BarangRepository.FindById(ctx, tx, update.Id, idUser)
+	if barangs.Id != update.Id {
+		panic(exception.NewNotFound("Data Barang Tidak Ditemukan"))
+	}
 	barangs.KodeBarang = update.KodeBarang
 	barangs.NameProd = update.NameProd
 	barangs.HargaProd = update.HargaProd
@@ -66,28 +78,25 @@ func (service *BarangServiceImpl) Update(ctx context.Context, update web.BarangU
 	barangs.ProfitProd = barangs.JualProd - barangs.HargaProd
 	barangs.Keterangan = update.Keterangan
 	barangs.Stok = update.Stok
-	if err != nil {
-		panic(exception.NewNotFound(err.Error()))
-	}
-	barangss, err := service.BarangRepository.FindByNameUpdate(ctx, tx, barangs.KodeBarang, barangs.NameProd, idUser)
+	barangss := service.BarangRepository.FindByNameUpdate(ctx, tx, barangs.KodeBarang, barangs.NameProd, idUser)
 	if barangs.Id == barangss.Id {
-		barangss.HargaProd = update.HargaProd
-		barangss.JualProd = update.JualProd
-		barangss.ProfitProd = barangss.JualProd - barangss.HargaProd
-		barangss.Keterangan = update.Keterangan
-		barangss.Stok = update.Stok
-		barangss, err = service.BarangRepository.Update(ctx, tx, barangs, idUser)
-		if err != nil {
-			panic(exception.NewNotEqual(err.Error()))
+		barangs = service.BarangRepository.Update(ctx, tx, barangs, idUser)
+		if barangs.ProfitProd < 0 {
+			panic(exception.NewNotEqual("Harga Profit Tidak Boleh Dibawah Harga Jual"))
 		}
-		return helper.ToBarangResponse(barangss)
+		return helper.ToBarangResponse(barangs)
 	}
-	if err != nil {
-		panic(exception.NewSameFound(err.Error()))
+	if barangs.Id != barangss.Id {
+		if barangs.KodeBarang == barangss.KodeBarang {
+			panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan, Mohon Untuk Cek Di Inventory", update.KodeBarang)))
+		}
+		if barangs.NameProd == barangss.NameProd {
+			panic(exception.NewSameFound(fmt.Sprintf("%s Sudah Digunakan, Mohon Untuk Cek Di Inventory", update.NameProd)))
+		}
 	}
-	barangs, err = service.BarangRepository.Update(ctx, tx, barangs, idUser)
-	if err != nil {
-		panic(exception.NewNotEqual(err.Error()))
+	barangs = service.BarangRepository.Update(ctx, tx, barangs, idUser)
+	if barangs.ProfitProd < 0 {
+		panic(exception.NewNotEqual("Harga Profit Tidak Boleh Dibawah Harga Jual"))
 	}
 	return helper.ToBarangResponse(barangs)
 }
@@ -96,9 +105,9 @@ func (service *BarangServiceImpl) Delete(ctx context.Context, barangId int, idUs
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
-	if err != nil {
-		panic(exception.NewNotFound(err.Error()))
+	barangs := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
+	if barangs.Id != barangId {
+		panic(exception.NewNotFound("Data Barang Tidak Ditemukan"))
 	}
 	service.BarangRepository.Delete(ctx, tx, barangs, idUser)
 }
@@ -107,31 +116,9 @@ func (service *BarangServiceImpl) FindById(ctx context.Context, barangId int, id
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
-	if err != nil {
-		panic(exception.NewNotFound(err.Error()))
-	}
-	return helper.ToBarangResponse(barangs)
-}
-
-func (service *BarangServiceImpl) FindByNameRegister(ctx context.Context, kodeBarang string, barangName string, idUser int) web.BarangResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicError(err)
-	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindByNameRegister(ctx, tx, kodeBarang, barangName, idUser)
-	if err != nil {
-		panic(exception.NewSameFound(err.Error()))
-	}
-	return helper.ToBarangResponse(barangs)
-}
-
-func (service *BarangServiceImpl) FindByNameUpdate(ctx context.Context, kodeBarang string, barangName string, idUser int) web.BarangResponse {
-	tx, err := service.DB.Begin()
-	helper.PanicError(err)
-	defer helper.CommitOrRollback(tx)
-	barangs, err := service.BarangRepository.FindByNameUpdate(ctx, tx, kodeBarang, barangName, idUser)
-	if err != nil {
-		panic(exception.NewSameFound(err.Error()))
+	barangs := service.BarangRepository.FindById(ctx, tx, barangId, idUser)
+	if barangs.Id != barangId {
+		panic(exception.NewNotFound("Data Barang Tidak Ditemukan"))
 	}
 	return helper.ToBarangResponse(barangs)
 }

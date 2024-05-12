@@ -38,7 +38,7 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs, _ := service.BarangRepository.FindByNameRegister(ctx, tx, request.Barang, request.Barang, idUser)
+	barangs := service.BarangRepository.FindByNameRegister(ctx, tx, request.Barang, request.Barang, idUser)
 	zone, _ := time.LoadLocation("Asia/Jakarta")
 	transaksi := domain.Transaction{
 		IdUser: idUser,

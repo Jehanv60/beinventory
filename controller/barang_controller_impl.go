@@ -28,7 +28,6 @@ func (controller *BarangControllerImpl) Create(w http.ResponseWriter, r *http.Re
 	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
 	barangCreateRequest := web.BarangCreateRequest{}
 	helper.ReadFromBody(r, &barangCreateRequest)
-	controller.BarangService.FindByNameRegister(r.Context(), barangCreateRequest.KodeBarang, barangCreateRequest.NameProd, idUser.Id)
 	barangResponse := controller.BarangService.Create(r.Context(), barangCreateRequest, idUser.Id)
 	webResponse := web.WebResponse{
 		Code:   200,
@@ -75,32 +74,6 @@ func (controller *BarangControllerImpl) FindById(w http.ResponseWriter, r *http.
 	id, err := strconv.Atoi(params.ByName("barangId"))
 	helper.PanicError(err)
 	barangResponse := controller.BarangService.FindById(r.Context(), id, idUser.Id)
-	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "Ok",
-		Data:   barangResponse,
-	}
-	helper.WriteToResponse(w, webResponse)
-}
-
-func (controller *BarangControllerImpl) FindByNameRegister(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
-	nameId := params.ByName("namaBarang")
-	kodeBarang := params.ByName("kodeBarang")
-	barangResponse := controller.BarangService.FindByNameRegister(r.Context(), kodeBarang, nameId, idUser.Id)
-	webResponse := web.WebResponse{
-		Code:   200,
-		Status: "Ok",
-		Data:   barangResponse,
-	}
-	helper.WriteToResponse(w, webResponse)
-}
-
-func (controller *BarangControllerImpl) FindByNameUpdate(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
-	nameId := params.ByName("namaBarang")
-	kodeBarang := params.ByName("kodeBarang")
-	barangResponse := controller.BarangService.FindByNameUpdate(r.Context(), kodeBarang, nameId, idUser.Id)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "Ok",

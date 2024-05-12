@@ -66,10 +66,10 @@ func sameFoundError(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(SameFound)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusFound)
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "Status Unauthorized",
+			Code:   http.StatusFound,
+			Status: "Status Found",
 			Data:   exception.Error,
 		}
 		helper.WriteToResponse(w, webResponse)
@@ -83,9 +83,9 @@ func sameNotEqual(w http.ResponseWriter, err interface{}) bool {
 	exception, ok := err.(NotEqual)
 	if ok {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
+		w.WriteHeader(http.StatusBadRequest)
 		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
+			Code:   http.StatusBadRequest,
 			Status: "Bad Request",
 			Data:   exception.Error,
 		}

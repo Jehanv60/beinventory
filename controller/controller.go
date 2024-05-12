@@ -11,8 +11,6 @@ type BarangController interface {
 	Update(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	Delete(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params)
-	FindByNameRegister(w http.ResponseWriter, r *http.Request, params httprouter.Params)
-	FindByNameUpdate(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindAll(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
 
@@ -21,8 +19,6 @@ type PenggunaController interface {
 	Update(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindById(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	FindAll(w http.ResponseWriter, r *http.Request, params httprouter.Params)
-	FindByPenggunaRegister(w http.ResponseWriter, r *http.Request, params httprouter.Params)
-	FindByPenggunaLogin(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 	LoginAuth(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
 
