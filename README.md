@@ -7,3 +7,4 @@ Fitur yang sudah ada pada saat ini :
 2. Login(dapat menggunakan username atau email)
 3. Inventory Barang(Create, Read, Update dan Delete)
 4. Data Pengguna(Create, Read dan Update)
+5. Transaksi(Create)
