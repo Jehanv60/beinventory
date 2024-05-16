@@ -63,10 +63,10 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 				middleware.Handler.ServeHTTP(w, r)
 			default:
 				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusUnauthorized)
+				w.WriteHeader(http.StatusMethodNotAllowed)
 				webResponse := web.WebResponse{
-					Code:   http.StatusUnauthorized,
-					Status: "End Point Unauthorized",
+					Code:   http.StatusMethodNotAllowed,
+					Status: "Not Good",
 				}
 				helper.WriteToResponse(w, webResponse)
 			}
