@@ -28,4 +28,5 @@ type PenggunaRepository interface {
 
 type TransaksiRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, transaksi domain.Transaction, iduser int) domain.Transaction
+	CodeSell(ctx context.Context, tx *sql.Tx, idUser int) []domain.Transaction
 }

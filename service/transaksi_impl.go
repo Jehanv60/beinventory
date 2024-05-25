@@ -45,12 +45,11 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 		Barang: domain.Barang{
 			KodeBarang: request.Barang,
 		},
-		KodePenjualan: request.KodePenjualan,
-		Jumlah:        request.Jumlah,
-		Bayar:         request.Bayar,
-		Kembali:       request.Bayar - request.Total,
-		Total:         barangs.JualProd * request.Jumlah,
-		Tanggal:       time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
+		Jumlah:  request.Jumlah,
+		Bayar:   request.Bayar,
+		Kembali: request.Bayar - request.Total,
+		Total:   barangs.JualProd * request.Jumlah,
+		Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
 	}
 	if barangs.KodeBarang != transaksi.Barang.KodeBarang {
 		panic(exception.NewNotFound(fmt.Sprintf("%s Data Barang Tidak Ada, Mohon Untuk Cek Di Inventory", request.Barang)))
@@ -64,6 +63,8 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 	transaksi.Kembali = transaksi.Bayar - transaksi.Total
 	barangs.Stok = barangs.Stok - request.Jumlah
 	service.BarangRepository.Update(ctx, tx, barangs, idUser)
+	countId := service.TransaksiRepository.CodeSell(ctx, tx, idUser)
+	transaksi.KodePenjualan = fmt.Sprintf("PJ/%v/%s", util.ChangeMonth(countId), time.Now().UTC().In(zone).Format(("06-01-02")))
 	transaksi = service.TransaksiRepository.Save(ctx, tx, transaksi, idUser)
 	return helper.ToTransaksiResponse(transaksi)
 }
