@@ -1,8 +1,6 @@
 package util
 
 import (
-	"log"
-
 	"github.com/Jehanv60/model/domain"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,7 +23,6 @@ func ChangeMonth(countId []domain.Transaction) int {
 	if countId != nil {
 		for i := range countId {
 			sum = 2 + i
-			log.Println(sum, i)
 		}
 		return sum
 	}
