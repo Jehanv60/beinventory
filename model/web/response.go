@@ -1,5 +1,7 @@
 package web
 
+import "encoding/json"
+
 type BarangResponse struct {
 	Id         int    `json:"id"`
 	IdUser     int    `json:"iduser"`
@@ -20,13 +22,13 @@ type PenggunaResponse struct {
 }
 
 type TransaksiResponse struct {
-	Id            int    `json:"id"`
-	IdUser        int    `json:"iduser"`
-	Barang        string `json:"kodebarang"`
-	KodePenjualan string `json:"kodepenjualan"`
-	Jumlah        int    `json:"jumlah"`
-	Bayar         int    `json:"bayar"`
-	Kembali       int    `json:"kembali"`
-	Total         int    `json:"total"`
-	Tanggal       string `json:"tanggal"`
+	Id            int             `json:"id"`
+	IdUser        int             `json:"iduser"`
+	KodePenjualan string          `json:"kodepenjualan"`
+	Jumlah        int             `json:"jumlah"`
+	Bayar         int             `json:"bayar"`
+	Kembali       int             `json:"kembali"`
+	Total         int             `json:"total"`
+	Tanggal       string          `json:"tanggal"`
+	ItemDetailed  json.RawMessage `json:"itemdetailed"`
 }

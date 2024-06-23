@@ -36,3 +36,14 @@ func (controller *TransaksiControllerImpl) Create(w http.ResponseWriter, r *http
 	}
 	helper.WriteToResponse(w, webResponse)
 }
+
+func (controller *TransaksiControllerImpl) ReportAll(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	idUser := controller.PenggunaService.FindByPenggunaLogin(r.Context(), util.TokenEnv(r))
+	transaksiResponse := controller.TransactionService.ReportAll(r.Context(), idUser.Id)
+	webResponse := web.WebResponse{
+		Code:   200,
+		Status: "Ok",
+		Data:   transaksiResponse,
+	}
+	helper.WriteToResponse(w, webResponse)
+}

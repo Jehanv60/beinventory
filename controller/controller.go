@@ -24,4 +24,5 @@ type PenggunaController interface {
 
 type TransaksiController interface {
 	Create(w http.ResponseWriter, r *http.Request, params httprouter.Params)
+	ReportAll(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }

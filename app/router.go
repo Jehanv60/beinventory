@@ -23,6 +23,7 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	router.POST("/api/logout", controller.Logout)
 	//transaksi
 	router.POST("/api/transaksi", transaksiController.Create)
+	router.GET("/api/transaksi", transaksiController.ReportAll)
 	router.PanicHandler = exception.ErrorHandler
 	return router
 }

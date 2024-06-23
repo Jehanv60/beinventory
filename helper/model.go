@@ -48,12 +48,20 @@ func ToTransaksiResponse(transaksi domain.Transaction) web.TransaksiResponse {
 	return web.TransaksiResponse{
 		Id:            transaksi.Id,
 		IdUser:        transaksi.IdUser,
-		Barang:        transaksi.Barang.KodeBarang,
 		KodePenjualan: transaksi.KodePenjualan,
 		Jumlah:        transaksi.Jumlah,
 		Bayar:         transaksi.Bayar,
 		Kembali:       transaksi.Kembali,
 		Total:         transaksi.Total,
 		Tanggal:       transaksi.Tanggal,
+		ItemDetailed:  transaksi.ItemDetailed,
 	}
+}
+
+func ToTransaksiResponses(transaksis []domain.Transaction) []web.TransaksiResponse {
+	var transaksiResponses []web.TransaksiResponse
+	for _, transaksiss := range transaksis {
+		transaksiResponses = append(transaksiResponses, ToTransaksiResponse(transaksiss))
+	}
+	return transaksiResponses
 }

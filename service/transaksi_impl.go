@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -32,39 +33,58 @@ func NewTransaksiService(transaksiRepository repository.TransaksiRepository, bar
 }
 
 func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.TransactionCreateRequest, idUser int) web.TransaksiResponse {
-	service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
-	err := service.Validate.Struct(request)
-	util.ErrValidateSelf(err)
+	// service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
+	// err := service.Validate.Struct(request)
+	// util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
-	barangs := service.BarangRepository.FindByNameRegister(ctx, tx, request.Barang, request.Barang, idUser)
-	zone, _ := time.LoadLocation("Asia/Jakarta")
-	transaksi := domain.Transaction{
-		IdUser: idUser,
-		Barang: domain.Barang{
-			KodeBarang: request.Barang,
-		},
-		Jumlah:  request.Jumlah,
-		Bayar:   request.Bayar,
-		Kembali: request.Bayar - request.Total,
-		Total:   barangs.JualProd * request.Jumlah,
-		Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
+	var (
+		zone, _   = time.LoadLocation("Asia/Jakarta")
+		produk    []domain.Product
+		result    []domain.Barang
+		transaksi = domain.Transaction{}
+		sum       int
+		total     int
+	)
+	json.Unmarshal([]byte(request.Barang), &produk)
+	for _, v := range produk {
+		barangs := service.BarangRepository.FindByNameRegister(ctx, tx, v.KodeProd, "", idUser)
+		if barangs.KodeBarang != v.KodeProd {
+			panic(exception.NewNotFound(fmt.Sprintf("%s Data Barang Tidak Ada, Mohon Untuk Cek Di Inventory", v.KodeProd)))
+		}
+		sum += v.Jumlah
+		total += barangs.JualProd * v.Jumlah
+		barangs.Stok = barangs.Stok - v.Jumlah
+		if transaksi.Jumlah > barangs.Stok {
+			panic(exception.NewNotEqual(fmt.Sprintf("%s Stok Tidak Cukup", v.KodeProd)))
+		}
+		result = append(result, barangs)
 	}
-	if barangs.KodeBarang != transaksi.Barang.KodeBarang {
-		panic(exception.NewNotFound(fmt.Sprintf("%s Data Barang Tidak Ada, Mohon Untuk Cek Di Inventory", request.Barang)))
+	for _, v := range result {
+		transaksi = domain.Transaction{
+			IdUser:  idUser,
+			Jumlah:  sum,
+			Bayar:   request.Bayar,
+			Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
+		}
+		service.BarangRepository.Update(ctx, tx, v, idUser)
 	}
+	transaksi.Total = total
 	if transaksi.Bayar < transaksi.Total {
-		panic(exception.NewNotEqual("Uang Gak Cukup"))
+		panic(exception.NewNotEqual(fmt.Sprintf("Uang Gak Cukup kurang Rp %v", transaksi.Total-transaksi.Bayar)))
 	}
-	if transaksi.Jumlah > barangs.Stok {
-		panic(exception.NewNotEqual("Stok Gak Cukup"))
-	}
+	transaksi.ItemDetailed = request.Barang
 	transaksi.Kembali = transaksi.Bayar - transaksi.Total
-	barangs.Stok = barangs.Stok - request.Jumlah
-	service.BarangRepository.Update(ctx, tx, barangs, idUser)
 	countId := service.TransaksiRepository.CodeSell(ctx, tx, idUser)
 	transaksi.KodePenjualan = fmt.Sprintf("PJ/%v/%s", util.ChangeMonth(countId), time.Now().UTC().In(zone).Format(("06-01-02")))
 	transaksi = service.TransaksiRepository.Save(ctx, tx, transaksi, idUser)
 	return helper.ToTransaksiResponse(transaksi)
+}
+func (service *TransaksiServiceImpl) ReportAll(ctx context.Context, idUser int) []web.TransaksiResponse {
+	tx, err := service.DB.Begin()
+	helper.PanicError(err)
+	defer helper.CommitOrRollback(tx)
+	transaksi := service.TransaksiRepository.ReportAll(ctx, tx, idUser)
+	return helper.ToTransaksiResponses(transaksi)
 }

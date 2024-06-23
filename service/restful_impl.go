@@ -24,4 +24,5 @@ type PenggunaService interface {
 
 type TransaksiService interface {
 	Create(ctx context.Context, request web.TransactionCreateRequest, idUser int) web.TransaksiResponse
+	ReportAll(ctx context.Context, idUser int) []web.TransaksiResponse
 }
