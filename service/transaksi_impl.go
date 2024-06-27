@@ -40,12 +40,13 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	var (
-		zone, _   = time.LoadLocation("Asia/Jakarta")
-		produk    []domain.Product
-		result    []domain.Barang
-		transaksi = domain.Transaction{}
-		sum       int
-		total     int
+		zone, _    = time.LoadLocation("Asia/Jakarta")
+		produk     []domain.Product
+		transaksi  = domain.Transaction{}
+		allDetail  []map[string]interface{}
+		rawMessage json.RawMessage
+		sum        int
+		total      int
 	)
 	json.Unmarshal([]byte(request.Barang), &produk)
 	for _, v := range produk {
@@ -59,22 +60,29 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 		if transaksi.Jumlah > barangs.Stok {
 			panic(exception.NewNotEqual(fmt.Sprintf("%s Stok Tidak Cukup", v.KodeProd)))
 		}
-		result = append(result, barangs)
-	}
-	for _, v := range result {
-		transaksi = domain.Transaction{
-			IdUser:  idUser,
-			Jumlah:  sum,
-			Bayar:   request.Bayar,
-			Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
+		detail := map[string]interface{}{
+			"id":       barangs.Id,
+			"jumlah":   v.Jumlah,
+			"kodeprod": barangs.KodeBarang,
 		}
-		service.BarangRepository.Update(ctx, tx, v, idUser)
+		service.BarangRepository.Update(ctx, tx, barangs, idUser)
+		allDetail = append(allDetail, detail)
 	}
+	data, err := json.Marshal(allDetail)
+	helper.PanicError(err)
+	json.Unmarshal([]byte(rawMessage), &allDetail)
+	rawMessage = data
+	transaksi = domain.Transaction{
+		IdUser:  idUser,
+		Jumlah:  sum,
+		Bayar:   request.Bayar,
+		Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
+	}
+	transaksi.ItemDetailed = rawMessage
 	transaksi.Total = total
 	if transaksi.Bayar < transaksi.Total {
 		panic(exception.NewNotEqual(fmt.Sprintf("Uang Gak Cukup kurang Rp %v", transaksi.Total-transaksi.Bayar)))
 	}
-	transaksi.ItemDetailed = request.Barang
 	transaksi.Kembali = transaksi.Bayar - transaksi.Total
 	countId := service.TransaksiRepository.CodeSell(ctx, tx, idUser)
 	transaksi.KodePenjualan = fmt.Sprintf("PJ/%v/%s", util.ChangeMonth(countId), time.Now().UTC().In(zone).Format(("06-01-02")))

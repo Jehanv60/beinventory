@@ -24,17 +24,13 @@ func NewPenggunaController(penggunaService service.PenggunaService) PenggunaCont
 func (controller *PenggunaControllerImpl) Create(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	penggunaCreateRequest := web.PenggunaCreateRequest{}
 	helper.ReadFromBody(r, &penggunaCreateRequest)
-	penggunaResponse := controller.PenggunaService.Create(r.Context(), penggunaCreateRequest)
+	controller.PenggunaService.Create(r.Context(), penggunaCreateRequest)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   penggunaResponse,
+		Data:   "Data Berhasil Ditambahkan",
 	}
-	helper.WriteToResponse(w, map[string]interface{}{
-		"Code":   webResponse.Code,
-		"Status": webResponse.Status,
-		"Mesage": "Data Berhasil Ditambahkan",
-	})
+	helper.WriteToResponse(w, webResponse)
 }
 
 // FindAll implements PenggunaController.
@@ -68,16 +64,12 @@ func (controller *PenggunaControllerImpl) Update(w http.ResponseWriter, r *http.
 	id, err := strconv.Atoi(params.ByName("penggunaId"))
 	helper.PanicError(err)
 	penggunaUpdate.Id = id
-	penggunaResponse := controller.PenggunaService.Update(r.Context(), penggunaUpdate)
+	controller.PenggunaService.Update(r.Context(), penggunaUpdate)
 	helper.PanicError(err)
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "Ok",
-		Data:   penggunaResponse,
+		Data:   "Data Berhasil Diupdate",
 	}
-	helper.WriteToResponse(w, map[string]interface{}{
-		"Code":   webResponse.Code,
-		"Status": webResponse.Status,
-		"Mesage": "Data Berhasil Diupdate",
-	})
+	helper.WriteToResponse(w, webResponse)
 }
