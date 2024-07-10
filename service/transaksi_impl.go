@@ -42,6 +42,7 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 	var (
 		zone, _    = time.LoadLocation("Asia/Jakarta")
 		produk     []domain.Product
+		barangb    []domain.Barang
 		transaksi  = domain.Transaction{}
 		allDetail  []map[string]interface{}
 		rawMessage json.RawMessage
@@ -57,17 +58,22 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 		sum += v.Jumlah
 		total += barangs.JualProd * v.Jumlah
 		barangs.Stok = barangs.Stok - v.Jumlah
-		if transaksi.Jumlah > barangs.Stok {
+		if v.Jumlah > barangs.Stok {
 			panic(exception.NewNotEqual(fmt.Sprintf("%s Stok Tidak Cukup", v.KodeProd)))
+		}
+		if v.Jumlah <= 0 {
+			panic(exception.NewNotEqual(fmt.Sprintf("%s Jumlah Barang Harus Lebih Dari 0", v.KodeProd)))
 		}
 		detail := map[string]interface{}{
 			"id":       barangs.Id,
 			"jumlah":   v.Jumlah,
 			"kodeprod": barangs.KodeBarang,
 		}
-		service.BarangRepository.Update(ctx, tx, barangs, idUser)
+		barangb = append(barangb, barangs)
 		allDetail = append(allDetail, detail)
 	}
+	updated := service.BarangRepository.Updates(ctx, tx, barangb, idUser)
+	helper.PanicError(updated)
 	data, err := json.Marshal(allDetail)
 	helper.PanicError(err)
 	json.Unmarshal([]byte(rawMessage), &allDetail)

@@ -26,14 +26,14 @@ func (repository *TransaksiRepoImpl) Save(ctx context.Context, tx *sql.Tx, trans
 }
 
 func (repository *TransaksiRepoImpl) CodeSell(ctx context.Context, tx *sql.Tx, idUser int) []domain.Transaction {
-	SQL := "select id, iduser, kodepenjualan, jumlah, bayar, kembali, total, tanggal, itemdetailed from transaksi where iduser=$1 and DATE_PART('month', tanggal) = DATE_PART('month', CURRENT_DATE)"
+	SQL := "select id, iduser, tanggal from transaksi where iduser=$1 and DATE_PART('month', tanggal) = DATE_PART('month', CURRENT_DATE)"
 	rows, err := tx.QueryContext(ctx, SQL, idUser)
 	helper.PanicError(err)
 	defer rows.Close()
 	var codeSell []domain.Transaction
 	for rows.Next() {
 		transaksi := domain.Transaction{}
-		err := rows.Scan(&transaksi.Id, &transaksi.IdUser, &transaksi.KodePenjualan, &transaksi.Jumlah, &transaksi.Bayar, &transaksi.Kembali, &transaksi.Total, &transaksi.Tanggal, &transaksi.ItemDetailed)
+		err := rows.Scan(&transaksi.Id, &transaksi.IdUser, &transaksi.Tanggal)
 		helper.PanicError(err)
 		codeSell = append(codeSell, transaksi)
 	}

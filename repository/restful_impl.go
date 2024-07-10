@@ -10,6 +10,7 @@ import (
 type BarangRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
 	Update(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) domain.Barang
+	Updates(ctx context.Context, tx *sql.Tx, barang []domain.Barang, idUser int) error
 	Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int)
 	FindById(ctx context.Context, tx *sql.Tx, barangId int, idUser int) domain.Barang
 	FindByNameRegister(ctx context.Context, tx *sql.Tx, kodeBarang string, barangName string, idUser int) domain.Barang

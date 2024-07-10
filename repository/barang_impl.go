@@ -32,6 +32,18 @@ func (repository *BarangRepoImpl) Update(ctx context.Context, tx *sql.Tx, barang
 	return barang
 }
 
+func (repository *BarangRepoImpl) Updates(ctx context.Context, tx *sql.Tx, barang []domain.Barang, idUser int) error {
+	SQL := "update barang set nameprod = $2, HargaProd = $3, keterangan = $4, stok = $5, kodebarang = $6, jualprod = $7, profitprod = $8 where id = $1 and iduser = $9 returning id"
+	hasil, err := tx.PrepareContext(ctx, SQL)
+	helper.PanicError(err)
+	defer hasil.Close()
+	for _, v := range barang {
+		_, err := hasil.ExecContext(ctx, v.Id, v.NameProd, v.HargaProd, v.Keterangan, v.Stok, v.KodeBarang, v.JualProd, v.ProfitProd, idUser)
+		helper.PanicError(err)
+	}
+	return nil
+}
+
 func (repository *BarangRepoImpl) Delete(ctx context.Context, tx *sql.Tx, barang domain.Barang, idUser int) {
 	SQL := "delete from barang where id = $1 and iduser=$2"
 	_, err := tx.ExecContext(ctx, SQL, barang.Id, idUser)
