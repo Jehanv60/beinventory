@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -74,7 +73,6 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 				Status: "Forbidden",
 				Data:   kata2,
 			}
-			log.Println(kata2)
 			helper.WriteToResponse(w, webResponse)
 		}
 	} else if apiKey == tokenn.Value {
