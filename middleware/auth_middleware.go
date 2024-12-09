@@ -1,8 +1,10 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
@@ -25,66 +27,98 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 		Header = os.Getenv("Header")
 		Token  = os.Getenv("Token")
 	)
-	ApiKey := r.Header.Get(Header)
+	apiKey := r.Header.Get(Header)
 	tokenn, err := r.Cookie(Token)
-	if ApiKey == "" || err == http.ErrNoCookie {
-		if r.Method != "POST" {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			webResponse := web.WebResponse{
-				Code:   http.StatusUnauthorized,
-				Status: "Mohon Login Dulu",
-			}
-			helper.WriteToResponse(w, webResponse)
-		} else {
-			switch r.URL.Path {
-			case "/api/login":
+	url := strings.TrimPrefix(r.URL.Path, "/api/")
+	if apiKey == "" || err == http.ErrNoCookie {
+		if r.Method == "POST" {
+			switch url {
+			case "login":
 				middleware.Handler.ServeHTTP(w, r)
-			case "/api/pengguna":
+			case "pengguna":
 				middleware.Handler.ServeHTTP(w, r)
-			case "/api/logout":
-				middleware.Handler.ServeHTTP(w, r)
+			case "logout":
+				if err == http.ErrNoCookie {
+					w.Header().Set("Content-Type", "application/json")
+					w.WriteHeader(http.StatusNotFound)
+					webResponse := web.WebResponse{
+						Code:   http.StatusNotFound,
+						Status: "Cookie Tidak Ditemukan",
+					}
+					helper.WriteToResponse(w, webResponse)
+				} else {
+					middleware.Handler.ServeHTTP(w, r)
+				}
 			default:
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusUnauthorized)
 				webResponse := web.WebResponse{
 					Code:   http.StatusUnauthorized,
-					Status: "Mohon Login Dulu",
-				}
-				helper.WriteToResponse(w, webResponse)
-			}
-		}
-	} else if ApiKey == tokenn.Value {
-		if r.Method == "POST" {
-			switch r.URL.Path {
-			case "/api/barang":
-				middleware.Handler.ServeHTTP(w, r)
-			case "/api/transaksi":
-				middleware.Handler.ServeHTTP(w, r)
-			default:
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusMethodNotAllowed)
-				webResponse := web.WebResponse{
-					Code:   http.StatusMethodNotAllowed,
-					Status: "Not Good",
+					Status: "Mohon Untuk Login",
 				}
 				helper.WriteToResponse(w, webResponse)
 			}
 		} else {
-			middleware.Handler.ServeHTTP(w, r)
-			tokenstring, err := util.Decodetoken(tokenn.Value)
+			kata2 := []string{}
+			if apiKey == "" {
+				kata2 = append(kata2, "Header Key Tidak Ada")
+			}
+			if err == http.ErrNoCookie {
+				kata2 = append(kata2, "Cookie Tidak Ditemukan")
+			}
+			kata2 = append(kata2, "Login Dulu Untuk Method Selain POST")
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			webResponse := web.WebResponse{
+				Code:   http.StatusForbidden,
+				Status: "Forbidden",
+				Data:   kata2,
+			}
+			log.Println(kata2)
+			helper.WriteToResponse(w, webResponse)
+		}
+	} else if apiKey == tokenn.Value {
+		if r.Method == "POST" {
+			switch url {
+			case "barang":
+				middleware.Handler.ServeHTTP(w, r)
+			case "transaksi":
+				middleware.Handler.ServeHTTP(w, r)
+			default:
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusNotFound)
+				webResponse := web.WebResponse{
+					Code:   http.StatusNotFound,
+					Status: "Not Found",
+				}
+				helper.WriteToResponse(w, webResponse)
+			}
+		} else {
+			tokenstring, err := util.Decodetoken(apiKey)
 			helper.PanicError(err)
+			middleware.Handler.ServeHTTP(w, r)
 			helper.WriteToResponse(w, map[string]interface{}{
 				"User": tokenstring["pengguna"],
 			})
 		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		webResponse := web.WebResponse{
-			Code:   http.StatusUnauthorized,
-			Status: "Unauthorized",
+		_, err := util.Decodetoken(apiKey)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			helper.WriteToResponse(w, map[string]interface{}{
+				"Code":    http.StatusBadRequest,
+				"Status":  "Bad Request",
+				"Message": err.Error(),
+			})
+		} else {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			webResponse := web.WebResponse{
+				Code:   http.StatusUnauthorized,
+				Status: "Unauthorized",
+			}
+			helper.WriteToResponse(w, webResponse)
 		}
-		helper.WriteToResponse(w, webResponse)
 	}
 }

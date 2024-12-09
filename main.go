@@ -29,10 +29,10 @@ func main() {
 	transaksiController := controller.NewTransaksiController(transaksiService, penggunaService, barangService)
 	router := app.NewRouter(barangController, penggunaController, transaksiController)
 	server := http.Server{
-		Addr:    "localhost:3000",
+		Addr:    ":8080",
 		Handler: middleware.NewAuthMiddleware(router),
 	}
-	fmt.Println("berhasil Konek")
+	fmt.Println("Aplikasi Mulai")
 	err := server.ListenAndServe()
 	helper.PanicError(err)
 }

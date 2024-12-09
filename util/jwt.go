@@ -32,7 +32,7 @@ func VerifyToken(vertoken string) (*jwt.Token, error) {
 		return []byte(SecretKey), nil
 	})
 	if err != nil {
-		return nil, errors.New("error cookie")
+		return nil, errors.New(err.Error())
 	}
 	return token, nil
 }
@@ -46,5 +46,5 @@ func Decodetoken(vertoken string) (jwt.MapClaims, error) {
 	if isok && token.Valid {
 		return claims, nil
 	}
-	return nil, fmt.Errorf("invalid token")
+	return token.Header, nil
 }

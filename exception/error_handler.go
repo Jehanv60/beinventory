@@ -1,13 +1,34 @@
 package exception
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Jehanv60/helper"
 	"github.com/Jehanv60/model/web"
 )
 
+func NotFoundRouter() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		webResponse := web.WebResponse{
+			Code:   http.StatusNotFound,
+			Status: "End Point Not Found",
+		}
+		helper.WriteToResponse(w, webResponse)
+	}
+}
+func MethodNotAllowed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		webResponse := web.WebResponse{
+			Code:   http.StatusMethodNotAllowed,
+			Status: "Method Not Allowed",
+		}
+		helper.WriteToResponse(w, webResponse)
+	}
+}
 func ErrorHandler(w http.ResponseWriter, r *http.Request, err interface{}) {
 	if notFoundError(w, err) {
 		return
@@ -104,6 +125,5 @@ func internalServerError(w http.ResponseWriter, err interface{}) {
 		Status: "Internal Server error",
 		Data:   err,
 	}
-	log.Println(err)
 	helper.WriteToResponse(w, webResponse)
 }

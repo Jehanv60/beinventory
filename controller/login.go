@@ -41,8 +41,8 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 	} else {
 		claims := jwt.MapClaims{}
 		claims["pengguna"] = penggunaCreateRequest.Pengguna
-		claims["sandi"] = penggunaCreateRequest.Sandi
-		// claims["exp"] = time.Now().Add(time.Hour * 5).Unix()
+		claims["id"] = penggunaId.Id
+		claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 		Token, err := util.GenerateToken(&claims)
 		helper.PanicError(err)
 		helper.GoDoEnv()
@@ -50,12 +50,14 @@ func (controller *PenggunaControllerImpl) LoginAuth(w http.ResponseWriter, r *ht
 			Name:     os.Getenv("Token"),
 			Value:    Token,
 			Path:     "/",
-			Expires:  time.Now().Add(time.Hour * 5),
+			Expires:  time.Now().Add(time.Hour * 1),
 			HttpOnly: true,
+			Secure:   true,
 		}
 		http.SetCookie(w, hehe)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusAccepted)
 		helper.WriteToResponse(w, map[string]interface{}{
-			"Message":  "Token Berhasil Dibuat",
 			"Token":    Token,
 			"Validasi": "Username Atau Email Dan Password Sesuai",
 		})

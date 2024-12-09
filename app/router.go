@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	"github.com/Jehanv60/controller"
 	"github.com/Jehanv60/exception"
 	"github.com/julienschmidt/httprouter"
@@ -24,6 +26,8 @@ func NewRouter(barangController controller.BarangController, penggunaController 
 	//transaksi
 	router.POST("/api/transaksi", transaksiController.Create)
 	router.GET("/api/transaksi", transaksiController.ReportAll)
+	router.NotFound = http.HandlerFunc(exception.NotFoundRouter())
+	router.MethodNotAllowed = http.HandlerFunc(exception.MethodNotAllowed())
 	router.PanicHandler = exception.ErrorHandler
 	return router
 }
