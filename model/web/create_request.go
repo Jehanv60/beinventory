@@ -21,13 +21,13 @@ type PenggunaCreateRequest struct {
 }
 
 type TransactionCreateRequest struct {
-	Barang        json.RawMessage `validate:"required,max=100,min=1,alphanum" json:"kodebarang"`
-	IdUser        int             `json:"iduser"`
-	KodePenjualan string          `validate:"required,max=100,min=1,alphanum" json:"kodepenjualan"`
-	Jumlah        int             `validate:"required,gte=1" json:"jumlah"`
-	Bayar         int             `validate:"required,gte=1" json:"bayar"`
-	Kembali       int             `validate:"required,gte=1" json:"kembali"`
-	Total         int             `validate:"required,gte=1" json:"total"`
-	Tanggal       string          `json:"tanggal"`
-	ItemDetailed  json.RawMessage `json:"itemdetailed"`
+	Barang json.RawMessage `validate:"required" json:"kodebarang"`
+	Bayar  int             `validate:"required,gte=0,lte=1000000000" json:"bayar"`
+	// IdUser        int             `json:"iduser"`
+	// KodePenjualan string          `validate:"required,max=100,min=1,alphanum" json:"kodepenjualan"`
+	// Jumlah        int             `validate:"required,gte=1" json:"jumlah"`
+	// Kembali       int             `validate:"required,gte=1" json:"kembali"`
+	// Total         int             `validate:"required,gte=1" json:"total"`
+	// Tanggal       string          `json:"tanggal"`
+	// ItemDetailed  json.RawMessage `json:"itemdetailed"`
 }

@@ -33,36 +33,47 @@ func NewTransaksiService(transaksiRepository repository.TransaksiRepository, bar
 }
 
 func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.TransactionCreateRequest, idUser int) web.TransaksiResponse {
-	// service.Validate.RegisterValidation("alphanumdash", util.ValidateAlphanumdash)
-	// err := service.Validate.Struct(request)
-	// util.ErrValidateSelf(err)
+	err := service.Validate.Struct(request)
+	util.ErrValidateSelf(err)
 	tx, err := service.DB.Begin()
 	helper.PanicError(err)
 	defer helper.CommitOrRollback(tx)
 	var (
-		zone, _    = time.LoadLocation("Asia/Jakarta")
-		produk     []domain.Product
-		barangb    []domain.Barang
-		transaksi  = domain.Transaction{}
-		allDetail  []map[string]interface{}
-		rawMessage json.RawMessage
-		sum        int
-		total      int
+		zone, _   = time.LoadLocation("Asia/Jakarta")
+		produk    []domain.Product
+		barangb   []domain.Barang
+		transaksi = domain.Transaction{}
+		allDetail []map[string]interface{}
+		sum       int
+		total     int
 	)
-	json.Unmarshal([]byte(request.Barang), &produk)
+	prodJson := json.Unmarshal([]byte(request.Barang), &produk)
+	helper.PanicError(prodJson)
+	if len(produk) < 1 {
+		panic(exception.NewNotFound("JSON Produk Kosong"))
+	}
 	for _, v := range produk {
+		if v.KodeProd == "" {
+			panic(exception.NewNotFound("Kode Barang Kosong"))
+		}
+		if v.Jumlah <= 0 {
+			panic(exception.NewNotEqual(fmt.Sprintf("%s Jumlah Barang Harus Lebih Dari 0", v.KodeProd)))
+		}
+		sum += v.Jumlah
 		barangs := service.BarangRepository.FindByNameRegister(ctx, tx, v.KodeProd, "", idUser)
 		if barangs.KodeBarang != v.KodeProd {
 			panic(exception.NewNotFound(fmt.Sprintf("%s Data Barang Tidak Ada, Mohon Untuk Cek Di Inventory", v.KodeProd)))
 		}
-		sum += v.Jumlah
 		total += barangs.JualProd * v.Jumlah
-		barangs.Stok = barangs.Stok - v.Jumlah
+		barangs.Stok -= v.Jumlah
 		if v.Jumlah > barangs.Stok {
 			panic(exception.NewNotEqual(fmt.Sprintf("%s Stok Tidak Cukup", v.KodeProd)))
 		}
-		if v.Jumlah <= 0 {
-			panic(exception.NewNotEqual(fmt.Sprintf("%s Jumlah Barang Harus Lebih Dari 0", v.KodeProd)))
+		//jika kode barang sama atau double maka jumlahnya akan digabung dan stok akan dikurangi
+		for _, val := range barangb {
+			if val.KodeBarang == barangs.KodeBarang {
+				barangs.Stok = val.Stok - v.Jumlah
+			}
 		}
 		detail := map[string]interface{}{
 			"id":       barangs.Id,
@@ -76,15 +87,13 @@ func (service *TransaksiServiceImpl) Create(ctx context.Context, request web.Tra
 	helper.PanicError(updated)
 	data, err := json.Marshal(allDetail)
 	helper.PanicError(err)
-	json.Unmarshal([]byte(rawMessage), &allDetail)
-	rawMessage = data
 	transaksi = domain.Transaction{
 		IdUser:  idUser,
 		Jumlah:  sum,
 		Bayar:   request.Bayar,
 		Tanggal: time.Now().UTC().In(zone).Format(("2006-01-02 15:04:05")),
 	}
-	transaksi.ItemDetailed = rawMessage
+	transaksi.ItemDetailed = data
 	transaksi.Total = total
 	if transaksi.Bayar < transaksi.Total {
 		panic(exception.NewNotEqual(fmt.Sprintf("Uang Gak Cukup kurang Rp %v", transaksi.Total-transaksi.Bayar)))

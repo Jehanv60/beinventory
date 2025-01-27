@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -15,6 +16,31 @@ func ValidateAlphanumdash(fl validator.FieldLevel) bool {
 	helper.PanicError(err)
 	result := simbol.MatchString(validation)
 	return result
+}
+
+func ValidateRawJSON(fl validator.FieldLevel) bool {
+	// Extract the raw JSON
+	rawJSON, ok := fl.Field().Interface().(json.RawMessage)
+	if !ok {
+		return false // Invalid type
+	}
+
+	// Unmarshal the JSON into a map[string]interface{} for flexibility
+	var data map[string]interface{}
+	err := json.Unmarshal(rawJSON, &data)
+	if err != nil {
+		return false // Invalid JSON
+	}
+
+	// Check if required fields exist in the JSON
+	if _, ok := data["kodebarang"]; !ok {
+		return false // Missing "field1" field
+	}
+
+	// Add more checks as per your requirements
+	// (e.g., data type validation, range checks, etc.)
+
+	return true
 }
 
 func ErrValidateSelf(err error) {
@@ -33,8 +59,10 @@ func ErrValidateSelf(err error) {
 				errCatch = fmt.Errorf("%s:Tidak Boleh Spasi dan Simbol", errVal.Field())
 			case "gte":
 				errCatch = fmt.Errorf("%s:Angka Tidak Boleh Mines", errVal.Field())
+			case "lte":
+				errCatch = fmt.Errorf("%s:Angka Tidak Boleh Melebihi %s", errVal.Field(), errVal.Param())
 			default:
-				errCatch = fmt.Errorf("%s:Error Belum Ada", errVal.Field())
+				errCatch = fmt.Errorf("error Pada Field: %s Dan Err :%s", errVal.Field(), errVal)
 			}
 			errValTag = append(errValTag, errCatch)
 		}

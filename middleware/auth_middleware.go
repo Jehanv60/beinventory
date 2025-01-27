@@ -25,6 +25,7 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	var (
 		Header = os.Getenv("Header")
 		Token  = os.Getenv("Token")
+		kata2  = []string{}
 	)
 	apiKey := r.Header.Get(Header)
 	tokenn, err := r.Cookie(Token)
@@ -58,7 +59,6 @@ func (middleware *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Reque
 				helper.WriteToResponse(w, webResponse)
 			}
 		} else {
-			kata2 := []string{}
 			if apiKey == "" {
 				kata2 = append(kata2, "Header Key Tidak Ada")
 			}
