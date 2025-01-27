@@ -1,7 +1,6 @@
 package util
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 
@@ -16,31 +15,6 @@ func ValidateAlphanumdash(fl validator.FieldLevel) bool {
 	helper.PanicError(err)
 	result := simbol.MatchString(validation)
 	return result
-}
-
-func ValidateRawJSON(fl validator.FieldLevel) bool {
-	// Extract the raw JSON
-	rawJSON, ok := fl.Field().Interface().(json.RawMessage)
-	if !ok {
-		return false // Invalid type
-	}
-
-	// Unmarshal the JSON into a map[string]interface{} for flexibility
-	var data map[string]interface{}
-	err := json.Unmarshal(rawJSON, &data)
-	if err != nil {
-		return false // Invalid JSON
-	}
-
-	// Check if required fields exist in the JSON
-	if _, ok := data["kodebarang"]; !ok {
-		return false // Missing "field1" field
-	}
-
-	// Add more checks as per your requirements
-	// (e.g., data type validation, range checks, etc.)
-
-	return true
 }
 
 func ErrValidateSelf(err error) {
